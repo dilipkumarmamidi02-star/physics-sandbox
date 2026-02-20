@@ -151,4 +151,4 @@ export default function RunsManager({ currentReadings, currentControls, experime
     </GlassCard>
   );
 }
-  import { drawPendulum } from './PendulumSim';
+  import { drawPendulum } from './BaseSims';

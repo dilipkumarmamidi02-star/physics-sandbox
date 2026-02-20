@@ -19,4 +19,3 @@ const Progress = React.forwardRef(({ className, value, ...props }, ref) => (
 Progress.displayName = ProgressPrimitive.Root.displayName
 
 export { Progress }
-import * as React from "react"

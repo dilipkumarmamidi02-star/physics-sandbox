@@ -18,10 +18,10 @@ import DataTable from '@/components/physics/DataTable';
 import GlassCard from '@/components/ui/GlassCard';
 import { EXPERIMENTS_DATA, GRADE_INFO, CATEGORY_INFO } from '@/components/physics/ExperimentsData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import GraphPanel from '@/components/physics/analysis/GraphPanel';
-import ErrorAnalysis from '@/components/physics/analysis/ErrorAnalysis';
-import RunsManager from '@/components/physics/analysis/RunsManager';
-import ExportPanel from '@/components/physics/analysis/ExportPanel';
+import GraphPanel from '@/components/physics/GraphPanel';
+import ErrorAnalysis from '@/components/physics/ErrorAnalysis';
+import RunsManager from '@/components/physics/RunsManager';
+import ExportPanel from '@/components/physics/ExportPanel';
 
 export default function Simulator() {
   const urlParams = new URLSearchParams(window.location.search);

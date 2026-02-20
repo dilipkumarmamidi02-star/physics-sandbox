@@ -68,17 +68,3 @@ export default function PageNotFound({}) {
         </div>
     )
 }
-import { QueryClient } from '@tanstack/react-query';
-
-
-export const queryClientInstance = new QueryClient({
-	defaultOptions: {
-		queries: {
-			refetchOnWindowFocus: false,
-			retry: 1,
-		},
-	},
-});
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-

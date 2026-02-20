@@ -26,5 +26,3 @@ PopoverContent.displayName = PopoverPrimitive.Content.displayName
 
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor }
 "use client"
-
-import * as React from "react"

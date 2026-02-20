@@ -327,4 +327,3 @@ export function drawGalvanometer(ctx, w, h, values, time) {
     voltmeterRange: V.toFixed(2)
   };
 }
-

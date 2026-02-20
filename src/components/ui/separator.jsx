@@ -21,4 +21,3 @@ Separator.displayName = SeparatorPrimitive.Root.displayName
 
 export { Separator }
 "use client";
-import * as React from "react"

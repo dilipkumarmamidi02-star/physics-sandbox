@@ -28,7 +28,3 @@ export default function NavigationTracker() {
 
     return null;
 }
-import { useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-
-

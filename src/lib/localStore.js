@@ -1,4 +1,3 @@
-import { entities, integrations } from '@/lib/localStore';
 /**
  * localStore.js — replaces base44 entity API with localStorage-backed CRUD
  * Drop-in replacement for entities.*

@@ -213,24 +213,3 @@ export default function GraphPanel({ readings, experiment, runs = [] }) {
     </GlassCard>
   );
 }
-  import React, { useState } from 'react';
-import GlassCard from '@/components/ui/GlassCard';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { GitCompare, Trash2, Eye, EyeOff, Save, BarChart3 } from 'lucide-react';
-import {
-  Table as UITable, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from "@/components/ui/table";
-
-const COLORS = ['#00d4ff', '#7928ca', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#a78bfa'];
-
-function calcStats(values) {
-  const nums = values.filter(v => typeof v === 'number' && !isNaN(v));
-  if (!nums.length) return null;
-  const n = nums.length;
-  const mean = nums.reduce((a, b) => a + b, 0) / n;
-  const stdDev = Math.sqrt(nums.reduce((s, v) => s + (v - mean) ** 2, 0) / Math.max(n - 1, 1));
-  return { mean: mean.toFixed(5), stdDev: stdDev.toFixed(5), min: Math.min(...nums).toFixed(5), max: Math.max(...nums).toFixed(5), n };
-}
-

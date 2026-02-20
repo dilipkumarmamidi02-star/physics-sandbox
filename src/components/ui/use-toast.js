@@ -158,5 +158,4 @@ function useToast() {
   };
 }
 
-export { useToast, toast }; 
-import React from 'react';
+export { useToast, toast };

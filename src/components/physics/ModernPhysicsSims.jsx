@@ -848,4 +848,3 @@ export function drawSuperconductivity(ctx, w, h, values, time) {
     meissnerEffect: isSuperC ? 'Active (B=0 inside)' : 'None'
   };
 }
-

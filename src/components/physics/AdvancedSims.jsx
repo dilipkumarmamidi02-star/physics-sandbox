@@ -1,11 +1,3 @@
-import { drawProjectile } from './ProjectileSim';
-import { drawInterference } from './InterferenceSim';
-import { drawPhotoelectric } from './PhotoelectricSim';
-import { drawFriction } from './FrictionSim';
-import { drawCollisions } from './CollisionsSim';
-import { drawSoundWaves } from './SoundWavesSim';
-import { drawRefraction } from './RefactionSim';
-import { drawLens } from './LensSim';
 
 // Advanced B.Tech simulations
 export function drawDampedOscillations(ctx, w, h, values, time) {
@@ -524,4 +516,3 @@ function drawMomentumBar(ctx, x, y, label, p1, p2, color1, color2) {
   ctx.fillText(`p₂=${p2.toFixed(1)}`, x + 60 + Math.abs(p2) * scale + 5, y + 12);
 }
   // Electricity simulations: Potentiometer, Meter Bridge, Galvanometer, EM Induction
-

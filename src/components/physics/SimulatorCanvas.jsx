@@ -1,27 +1,13 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { drawPendulum } from './simulations/PendulumSim';
-import { drawProjectile } from './simulations/ProjectileSim';
-import { drawInterference } from './simulations/InterferenceSim';
-import { drawPhotoelectric } from './simulations/PhotoelectricSim';
-import { drawFriction } from './simulations/FrictionSim';
-import { drawCollisions } from './simulations/CollisionsSim';
-import { drawSoundWaves } from './simulations/SoundWavesSim';
-import { drawRefraction } from './simulations/RefactionSim';
-import { drawLens } from './simulations/LensSim';
-import { drawDampedOscillations, drawKirchhoff, drawMagneticField, drawSolenoid } from './simulations/AllSimulations';
-import { drawVernierCaliper } from './simulations/VernierCaliperSim';
-import { drawScrewGauge } from './simulations/ScrewGaugeSim';
-import { drawSonometer } from './simulations/SonometerSim';
-import { drawYoungsModulus } from './simulations/YoungModulusSim';
-import { drawLCRResonance } from './simulations/LCRResonanceSim';
-import { drawPNJunction } from './simulations/PNJunctionSim';
-import { drawPotentiometer, drawMeterBridge, drawGalvanometer, drawEMInduction } from './simulations/ElectricitySims';
-import { drawDiffraction, drawPolarization, drawMichelson, drawLaserDiffraction } from './simulations/OpticsSims';
+import { drawDampedOscillations, drawKirchhoff, drawMagneticField, drawSolenoid } from './AllSimulations';
+import { drawPotentiometer, drawMeterBridge, drawGalvanometer, drawEMInduction } from './ElectricitySims';
+import { drawDiffraction, drawPolarization, drawMichelson, drawLaserDiffraction } from './OpticsSims';
 import {
   drawCompton, drawHydrogenSpectrum, drawXRayDiffraction, drawHallEffect,
   drawStefanBoltzmann, drawNuclearDecay, drawQuantumTunneling, drawParticleInBox,
-  drawSuperconductivity, drawCoupledPendulum, drawGyroscope
-} from './simulations/ModernPhysicsSims';
+  drawSuperconductivity
+} from './ModernPhysicsSims';
+import { drawCoupledPendulum, drawGyroscope } from './MechanicalSims';
 
 export default function SimulatorCanvas({ experiment, controls, isRunning, onFrame }) {
   const canvasRef = useRef(null);

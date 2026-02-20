@@ -591,4 +591,3 @@ export function drawLCRResonance(ctx, w, h, values, time) {
 // Modern physics simulations: Compton, Hydrogen Spectrum, X-Ray Diffraction,
 // Hall Effect, Stefan-Boltzmann, Nuclear Decay, Quantum Tunneling, 
 // Particle in a Box (wave-function), Superconductivity
-

@@ -48,4 +48,3 @@ const Toaster = ({
 }
 
 export { Toaster }
-import * as React from "react"

@@ -37,4 +37,3 @@ const ResizableHandle = ({
 )
 
 export { ResizablePanelGroup, ResizablePanel, ResizableHandle }
-import * as React from "react"

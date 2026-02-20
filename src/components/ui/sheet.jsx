@@ -98,4 +98,3 @@ export {
   PaginationNext,
   PaginationEllipsis,
 }
-import * as React from "react"

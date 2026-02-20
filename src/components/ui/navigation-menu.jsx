@@ -102,5 +102,3 @@ export {
   NavigationMenuIndicator,
   NavigationMenuViewport,
 }
-
-import * as React from "react"

@@ -37,5 +37,3 @@ ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName
 
 export { ScrollArea, ScrollBar }
 "use client"
-
-import * as React from "react"

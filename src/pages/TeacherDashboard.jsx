@@ -13,9 +13,9 @@ import {
   Plus, FlaskConical, Star, Clock, BarChart2, UserCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
-import CreateAssignmentModal from '@/components/teacher/CreateAssignmentModal';
-import AssignmentCard from '@/components/teacher/AssignmentCard';
-import SubmissionsPanel from '@/components/teacher/SubmissionsPanel';
+import CreateAssignmentModal from '@/components/physics/CreateAssignmentModal';
+import AssignmentCard from '@/components/physics/AssignmentCard';
+import SubmissionsPanel from '@/components/physics/SubmissionsPanel';
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState(null);

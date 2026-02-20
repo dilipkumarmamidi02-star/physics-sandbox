@@ -106,4 +106,3 @@ export {
   SheetTitle,
   SheetDescription,
 }
-import * as React from "react"
