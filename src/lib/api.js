@@ -1,32 +1,41 @@
-const API_URL = 'https://physics-sandbox-api.onrender.com/api';
+const API_URL = "https://physics-sandbox-api.onrender.com/api";
 
-const getToken = () => localStorage.getItem('physics_token');
+const getToken = () => localStorage.getItem("physics_token");
 
 const headers = () => ({
-  'Content-Type': 'application/json',
+  "Content-Type": "application/json",
   ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
 });
 
+const get = (url) => fetch(url, { headers: headers() }).then(r => r.json());
+const post = (url, data) => fetch(url, { method: "POST", headers: headers(), body: JSON.stringify(data) }).then(r => r.json());
+const patch = (url, data) => fetch(url, { method: "PATCH", headers: headers(), body: JSON.stringify(data) }).then(r => r.json());
+const del = (url) => fetch(url, { method: "DELETE", headers: headers() }).then(r => r.json());
+
 export const api = {
   // Auth
-  signup: (data) => fetch(`${API_URL}/auth/signup`, { method: 'POST', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
-  login: (data) => fetch(`${API_URL}/auth/login`, { method: 'POST', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
+  signup: (data) => post(`${API_URL}/auth/signup`, data),
+  login: (data) => post(`${API_URL}/auth/login`, data),
+  me: () => get(`${API_URL}/auth/me`),
 
   // Users
-  getTeachers: () => fetch(`${API_URL}/users/teachers`, { headers: headers() }).then(r => r.json()),
+  getUsers: () => get(`${API_URL}/users`),
+  getTeachers: () => get(`${API_URL}/users`).then(users => users.filter ? users.filter(u => u.role === "teacher") : []),
 
   // Links
-  sendLinkRequest: (data) => fetch(`${API_URL}/links`, { method: 'POST', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
-  getStudentLinks: (email) => fetch(`${API_URL}/links/student/${email}`, { headers: headers() }).then(r => r.json()),
-  getTeacherLinks: (email) => fetch(`${API_URL}/links/teacher/${email}`, { headers: headers() }).then(r => r.json()),
-  updateLink: (id, status) => fetch(`${API_URL}/links/${id}`, { method: 'PUT', headers: headers(), body: JSON.stringify({ status }) }).then(r => r.json()),
+  sendLinkRequest: (data) => post(`${API_URL}/links`, data),
+  getStudentLinks: (email) => get(`${API_URL}/links?student_email=${email}`),
+  getTeacherLinks: (email) => get(`${API_URL}/links?teacher_email=${email}`),
+  updateLink: (id, status) => patch(`${API_URL}/links/${id}`, { status }),
+  deleteLink: (id) => del(`${API_URL}/links/${id}`),
 
   // Assignments
-  createAssignment: (data) => fetch(`${API_URL}/assignments`, { method: 'POST', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
-  getStudentAssignments: (email) => fetch(`${API_URL}/assignments/student/${email}`, { headers: headers() }).then(r => r.json()),
-  getTeacherAssignments: (email) => fetch(`${API_URL}/assignments/teacher/${email}`, { headers: headers() }).then(r => r.json()),
+  createAssignment: (data) => post(`${API_URL}/assignments`, data),
+  getStudentAssignments: (email) => get(`${API_URL}/assignments?student_email=${email}`),
+  getTeacherAssignments: (email) => get(`${API_URL}/assignments?teacher_email=${email}`),
+  deleteAssignment: (id) => del(`${API_URL}/assignments/${id}`),
 
   // Submissions
-  submitAssignment: (data) => fetch(`${API_URL}/submissions`, { method: 'POST', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
-  getSubmissions: (assignmentId) => fetch(`${API_URL}/submissions/${assignmentId}`, { headers: headers() }).then(r => r.json()),
+  submitAssignment: (data) => post(`${API_URL}/submissions`, data),
+  getSubmissions: (assignmentId) => get(`${API_URL}/submissions?assignment_id=${assignmentId}`),
 };
