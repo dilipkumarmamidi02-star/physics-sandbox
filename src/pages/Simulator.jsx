@@ -24,7 +24,8 @@ import RunsManager from '@/components/physics/RunsManager';
 import ExportPanel from '@/components/physics/ExportPanel';
 
 export default function Simulator() {
-  const urlParams = new URLSearchParams(window.location.search);
+  const hashSearch = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : window.location.search;
+  const urlParams = new URLSearchParams(hashSearch);
   const experimentId = urlParams.get('id');
   
   const experiment = EXPERIMENTS_DATA.find(e => e.id === experimentId);

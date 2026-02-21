@@ -1,3 +1,9 @@
+import { drawProjectile, drawRefraction, drawScrewGauge, drawSonometer, drawSoundWaves, drawVernierCaliper, drawYoungsModulus } from './BaseSims';
+import { drawCollisions } from './AdvancedSims';
+import { drawFriction } from './EMSims';
+import { drawInterference, drawLCRResonance, drawLens } from './WaveSims';
+import { drawPhotoelectric, drawPNJunction } from './OpticalSims';
+
 import React, { useRef, useEffect, useCallback } from 'react';
 import { drawDampedOscillations, drawKirchhoff, drawMagneticField, drawSolenoid } from './AllSimulations';
 import { drawPotentiometer, drawMeterBridge, drawGalvanometer, drawEMInduction } from './ElectricitySims';
@@ -7,7 +13,13 @@ import {
   drawStefanBoltzmann, drawNuclearDecay, drawQuantumTunneling, drawParticleInBox,
   drawSuperconductivity
 } from './ModernPhysicsSims';
-import { drawCoupledPendulum, drawGyroscope } from './MechanicalSims';
+import { drawCoupledPendulum, drawGyroscope, drawPendulum } from './MechanicalSims';
+
+
+function drawDefaultLocal(ctx, controls, frame) {}
+function drawOhmsLawLocal(ctx, controls, frame) {}
+function drawSpringLocal(ctx, controls, frame) {}
+function drawWavesLocal(ctx, controls, frame) {}
 
 export default function SimulatorCanvas({ experiment, controls, isRunning, onFrame }) {
   const canvasRef = useRef(null);

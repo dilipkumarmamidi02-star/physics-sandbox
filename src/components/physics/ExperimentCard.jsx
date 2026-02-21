@@ -36,7 +36,7 @@ export default function ExperimentCard({ experiment, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.5 }}
     >
-      <Link to={createPageUrl(`Simulator?id=${experiment.id}`)}>
+      <Link to={`/Simulator?id=${experiment.id}`}>
         <GlassCard 
           className="group h-full overflow-hidden"
           glow

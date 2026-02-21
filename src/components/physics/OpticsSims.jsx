@@ -1,1 +1,1 @@
-export { drawDiffraction, drawPolarization, drawMichelson, drawLaserDiffraction } from './OpticalSims';
+export { drawDiffraction, drawPolarization, drawMichelson, drawLaserDiffraction } from './MechanicalSims';

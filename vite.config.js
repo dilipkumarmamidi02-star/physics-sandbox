@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 import path from 'path'
 
 export default defineConfig({
-  base: '/physics-sandbox/',
+  base: './',
   plugins: [react()],
   resolve: {
     alias: {

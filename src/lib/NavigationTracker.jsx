@@ -1,3 +1,7 @@
+import { pagesConfig } from '@/pages.config';
+import { useAuth } from '@/lib/AuthContext';
+import { useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
 export default function NavigationTracker() {
     const location = useLocation();
     const { isAuthenticated } = useAuth();

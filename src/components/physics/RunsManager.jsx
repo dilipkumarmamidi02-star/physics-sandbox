@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import GlassCard from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -151,4 +152,4 @@ export default function RunsManager({ currentReadings, currentControls, experime
     </GlassCard>
   );
 }
-  import { drawPendulum } from './BaseSims';
+  import { drawPendulum } from './MechanicalSims';
