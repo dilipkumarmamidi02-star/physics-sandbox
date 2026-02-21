@@ -20,7 +20,7 @@ export default function RoleSelect() {
     setError('');
     try {
       const data = mode === 'signup'
-        ? await api.signup({ name, email, password, role })
+        ? await api.signup({ full_name: name, email, password, role })
         : await api.login({ email, password });
       if (data.error) return setError(data.error);
       localStorage.setItem('physics_token', data.token);
