@@ -237,7 +237,7 @@ export default function Navbar() {
                     </Button>
                   </Link>
                   <Button 
-                    onClick={() => (window.location.href = "/ConnectTeacher")}
+                    onClick={() => (window.location.href = "/#/ConnectTeacher")}
                     className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/25"
                   >
                     <Sparkles className="w-4 h-4 mr-2" />

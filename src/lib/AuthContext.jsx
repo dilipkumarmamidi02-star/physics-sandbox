@@ -1,52 +1,36 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext();
-
-// Simple localStorage-based auth (no external service needed)
-const LOCAL_USER_KEY = 'physics_sandbox_user';
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
-    // Load user from localStorage on mount
-    try {
-      const stored = localStorage.getItem(LOCAL_USER_KEY);
-      if (stored) {
-        setUser(JSON.parse(stored));
-      }
-    } catch (e) {
-      // ignore
+    const saved = localStorage.getItem('physics_sandbox_user');
+    if (saved) {
+      try { setUser(JSON.parse(saved)); } catch {}
     }
-    setIsLoadingAuth(false);
   }, []);
 
   const login = (userData) => {
-    const u = { ...userData, id: userData.id || Date.now().toString() };
+    const u = {
+      id: userData.email,
+      email: userData.email,
+      full_name: userData.name || userData.email.split('@')[0],
+      role: userData.role || 'student',
+      ...userData
+    };
+    localStorage.setItem('physics_sandbox_user', JSON.stringify(u));
     setUser(u);
-    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(u));
   };
 
   const logout = () => {
+    localStorage.removeItem('physics_sandbox_user');
     setUser(null);
-    localStorage.removeItem(LOCAL_USER_KEY);
   };
 
-  const isLoadingPublicSettings = false;
-  const authError = null;
-  const navigateToLogin = () => {};
-
   return (
-    <AuthContext.Provider value={{
-      user,
-      login,
-      logout,
-      isLoadingAuth,
-      isLoadingPublicSettings,
-      authError,
-      navigateToLogin,
-    }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

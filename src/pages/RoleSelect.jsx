@@ -1,69 +1,75 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import React, { useState } from 'react';
+import { useAuth } from '@/lib/AuthContext';
 import { motion } from 'framer-motion';
-import AnimatedBackground from '@/components/physics/AnimatedBackground';
-import { Button } from '@/components/ui/button';
-import { GraduationCap, BookOpen, Atom } from 'lucide-react';
 
 export default function RoleSelect() {
+  const { login } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('student');
+
+  const handleSignIn = () => {
+    if (!email) return alert('Please enter your email');
+    login({ name, email, role });
+    window.location.href = '/#/';
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
-      <AnimatedBackground />
-      <div className="relative z-10 w-full max-w-lg mx-auto px-6">
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-          <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/30">
-            <Atom className="w-10 h-10 text-white animate-spin-slow" />
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-md"
+      >
+        <h1 className="text-3xl font-bold text-white mb-2 text-center">Welcome</h1>
+        <p className="text-slate-400 text-center mb-8">Sign in to Physics Sandbox</p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-slate-300 text-sm mb-1 block">Your Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-2">
-            PHX-MASTER
-          </h1>
-          <p className="text-slate-400 text-lg">Virtual Physics Laboratory</p>
-          <p className="text-slate-500 text-sm mt-3">Choose how you want to continue</p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* Student */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}>
-            <Link to={createPageUrl('StudentAssignments')}>
-              <div className="group cursor-pointer bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/5 rounded-2xl p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:shadow-lg group-hover:shadow-cyan-500/30 transition-shadow">
-                  <GraduationCap className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-2">I'm a Student</h2>
-                <p className="text-slate-400 text-sm">Access experiments, view assignments from your teacher, and track your progress.</p>
-                <div className="mt-5">
-                  <span className="inline-block px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-xl">
-                    Enter as Student →
-                  </span>
-                </div>
-              </div>
-            </Link>
-          </motion.div>
-
-          {/* Teacher */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}>
-            <Link to={createPageUrl('TeacherDashboard')}>
-              <div className="group cursor-pointer bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-purple-500/5 rounded-2xl p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/10">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-shadow">
-                  <BookOpen className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-white mb-2">I'm a Teacher</h2>
-                <p className="text-slate-400 text-sm">Create assignments, manage students, and grade experiment submissions.</p>
-                <div className="mt-5">
-                  <span className="inline-block px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-xl">
-                    Enter as Teacher →
-                  </span>
-                </div>
-              </div>
-            </Link>
-          </motion.div>
+          <div>
+            <label className="text-slate-300 text-sm mb-1 block">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+          <div>
+            <label className="text-slate-300 text-sm mb-1 block">Role</label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setRole('student')}
+                className={`flex-1 py-2 rounded-lg border transition-all ${role === 'student' ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' : 'border-slate-600 text-slate-400'}`}
+              >
+                Student
+              </button>
+              <button
+                onClick={() => setRole('teacher')}
+                className={`flex-1 py-2 rounded-lg border transition-all ${role === 'teacher' ? 'border-purple-500 bg-purple-500/10 text-purple-400' : 'border-slate-600 text-slate-400'}`}
+              >
+                Teacher
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={handleSignIn}
+            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity mt-2"
+          >
+            Sign In
+          </button>
         </div>
-
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center text-slate-500 text-xs mt-8">
-          Your role is remembered from your account. This is just a quick-access shortcut.
-        </motion.p>
-      </div>
+      </motion.div>
     </div>
   );
 }
