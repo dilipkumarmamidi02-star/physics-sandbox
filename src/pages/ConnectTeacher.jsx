@@ -23,7 +23,7 @@ export default function ConnectTeacher() {
     if (user?.role === 'teacher' || user?.role === 'admin') {
       navigate('/');
     }
-  }, [profile]);
+  }, [user]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
