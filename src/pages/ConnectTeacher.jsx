@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
 import { entities, integrations } from '@/lib/localStore';
 import React, { useState, useEffect } from 'react';
@@ -24,7 +25,7 @@ export default function ConnectTeacher() {
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users-connect'],
-    queryFn: () => entities.User.list(),
+    queryFn: async () => { const { data } = await supabase.from('profiles').select('*'); return data || []; },
     enabled: !!user
   });
 
