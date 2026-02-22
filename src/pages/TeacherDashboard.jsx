@@ -35,7 +35,7 @@ export default function TeacherDashboard() {
 
   const { data: allSubmissions = [] } = useQuery({
     queryKey: ['all-submissions'],
-    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').order('created_at', { ascending: false }).limit(200); return data || []; },
+    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').order('submitted_at', { ascending: false }).limit(200); return data || []; },
     enabled: !!user?.email
   });
 
