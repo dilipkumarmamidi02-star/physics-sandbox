@@ -1,4 +1,4 @@
-import { entities, integrations } from '@/lib/localStore';
+import { supabase } from '@/lib/supabase';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ export default function SubmissionsPanel({ assignment, onBack }) {
 
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ['submissions', assignment.id],
-    queryFn: () => entities.StudentSubmission.filter({ assignment_id: assignment.id }),
+    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').eq('assignment_id', assignment.id); return data || []; },
     enabled: !!assignment.id
   });
 
