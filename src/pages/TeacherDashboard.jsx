@@ -29,25 +29,25 @@ export default function TeacherDashboard() {
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['assignments', user?.email],
-    queryFn: () => entities.ExperimentAssignment.filter({ teacher_email: user?.email }),
+    queryFn: async () => { const { data } = await supabase.from('experiment_assignments').select('*').eq('teacher_email', user?.email); return data || []; },
     enabled: !!user?.email
   });
 
   const { data: allSubmissions = [] } = useQuery({
     queryKey: ['all-submissions'],
-    queryFn: () => entities.StudentSubmission.list('-created_date', 200),
+    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').order('created_at', { ascending: false }).limit(200); return data || []; },
     enabled: !!user?.email
   });
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
-    queryFn: () => entities.User.list(),
+    queryFn: async () => { const { data } = await supabase.from('profiles').select('*'); return data || []; },
     enabled: !!user
   });
 
   const { data: allSessions = [] } = useQuery({
     queryKey: ['all-sessions'],
-    queryFn: () => entities.ExperimentSession.list('-created_date', 100),
+    queryFn: async () => { const { data } = await supabase.from('experiment_sessions').select('*').order('created_at', { ascending: false }).limit(100); return data || []; },
     enabled: !!user
   });
 
