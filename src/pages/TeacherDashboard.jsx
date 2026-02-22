@@ -18,12 +18,12 @@ import AssignmentCard from '@/components/physics/AssignmentCard';
 import SubmissionsPanel from '@/components/physics/SubmissionsPanel';
 
 export default function TeacherDashboard() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [viewingAssignment, setViewingAssignment] = useState(null);
 
   useEffect(() => {
-    Promise.resolve(null).then(setUser).catch(() => {});
+    
   }, []);
 
   const { data: assignments = [] } = useQuery({

@@ -131,13 +131,13 @@ function SubmitModal({ assignment, existingSubmission, user, open, onClose }) {
 }
 
 export default function StudentAssignments() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('pending');
   const [submitTarget, setSubmitTarget] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    Promise.resolve(null).then(setUser).catch(() => {});
+    
   }, []);
 
   const { data: allAssignments = [] } = useQuery({

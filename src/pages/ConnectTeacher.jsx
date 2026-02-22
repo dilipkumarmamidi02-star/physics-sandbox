@@ -14,12 +14,12 @@ import {
 } from 'lucide-react';
 
 export default function ConnectTeacher() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    Promise.resolve(null).then(setUser).catch(() => {});
+    
   }, []);
 
   const { data: allUsers = [] } = useQuery({
