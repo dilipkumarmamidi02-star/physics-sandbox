@@ -12,10 +12,18 @@ import { toast } from 'sonner';
 import {
   Search, UserPlus, CheckCircle2, Clock, XCircle, BookOpen, Users, AlertCircle
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ConnectTeacher() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (profile?.role === 'teacher' || profile?.role === 'admin') {
+      navigate('/');
+    }
+  }, [profile]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
