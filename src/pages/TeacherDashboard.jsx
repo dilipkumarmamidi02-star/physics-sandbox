@@ -47,7 +47,7 @@ export default function TeacherDashboard() {
 
   const { data: allSessions = [] } = useQuery({
     queryKey: ['all-sessions'],
-    queryFn: async () => { const { data } = await supabase.from('experiment_sessions').select('*').order('created_at', { ascending: false }).limit(100); return data || []; },
+    queryFn: async () => { return []; },
     enabled: !!user
   });
 
