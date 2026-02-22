@@ -60,10 +60,9 @@ export default function GradingModal({ submission, assignment, open, onClose }) 
 
   const gradeMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const me = await Promise.resolve(null);
       const { error } = await supabase.from('student_submissions').update({
         ...data,
-        graded_by: me.email,
+        graded_by: 'teacher',
         graded_at: new Date().toISOString(),
         status: 'graded'
       }).eq('id', id); if (error) throw error;
