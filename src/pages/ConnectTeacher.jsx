@@ -15,12 +15,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 export default function ConnectTeacher() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (profile?.role === 'teacher' || profile?.role === 'admin') {
+    if (user?.role === 'teacher' || user?.role === 'admin') {
       navigate('/');
     }
   }, [profile]);
