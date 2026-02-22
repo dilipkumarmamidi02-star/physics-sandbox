@@ -16,7 +16,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
   const [customQuestions, setCustomQuestions] = useState(['']);
   const [form, setForm] = useState({
     title: '', experiment_id: '', description: '',
-    due_date: '', max_score: 100, student_group_name: ''
+    deadline: '', max_score: 100, student_group_name: ''
   });
 
   const mutation = useMutation({
@@ -28,7 +28,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
     onSuccess: () => {
       queryClient.invalidateQueries(['assignments']);
       onClose();
-      setForm({ title: '', experiment_id: '', description: '', due_date: '', max_score: 100, student_group_name: '' });
+      setForm({ title: '', experiment_id: '', description: '', deadline: '', max_score: 100, student_group_name: '' });
       setSelectedStudents([]);
       setCustomQuestions(['']);
     }
@@ -46,7 +46,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
       title: form.title,
       description: form.instructions,
       custom_questions: customQuestions.filter(q => q.trim()),
-      due_date: form.due_date,
+      deadline: form.due_date ? new Date(form.due_date).toISOString() : null,
       max_score: Number(form.max_score) || 100,
       status: 'active'
     });
