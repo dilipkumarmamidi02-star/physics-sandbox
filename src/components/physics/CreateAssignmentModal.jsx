@@ -1,4 +1,4 @@
-import { entities, integrations } from '@/lib/localStore';
+import { supabase } from '@/lib/supabase';
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const assignment = await entities.ExperimentAssignment.create(data);
+      const { data: assignment, error } = await supabase.from('experiment_assignments').insert(data).select().single(); if (error) throw error;
       // Send email to each selected student
       for (const email of data.student_emails || []) {
         await integrations.Core.SendEmail({
