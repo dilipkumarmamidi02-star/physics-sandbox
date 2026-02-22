@@ -15,27 +15,20 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [customQuestions, setCustomQuestions] = useState(['']);
   const [form, setForm] = useState({
-    title: '', experiment_id: '', instructions: '',
+    title: '', experiment_id: '', description: '',
     due_date: '', max_score: 100, student_group_name: ''
   });
 
   const mutation = useMutation({
     mutationFn: async (data) => {
       const { data: assignment, error } = await supabase.from('experiment_assignments').insert(data).select().single(); if (error) throw error;
-      // Send email to each selected student
-      for (const email of data.student_emails || []) {
-        await integrations.Core.SendEmail({
-          to: email,
-          subject: `New Assignment: ${data.title}`,
-          body: `Hello,\n\nYou have a new physics assignment from your teacher.\n\nTitle: ${data.title}\nExperiment: ${data.experiment_name}\nDue Date: ${data.due_date || 'Not specified'}\n\n${data.instructions ? 'Instructions:\n' + data.instructions + '\n\n' : ''}Log in to PHX-MASTER to complete your assignment.\n\nGood luck!\n— PHX-MASTER`
-        }).catch(() => {}); // Don't fail if email fails
-      }
+
       return assignment;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['assignments']);
       onClose();
-      setForm({ title: '', experiment_id: '', instructions: '', due_date: '', max_score: 100, student_group_name: '' });
+      setForm({ title: '', experiment_id: '', description: '', due_date: '', max_score: 100, student_group_name: '' });
       setSelectedStudents([]);
       setCustomQuestions(['']);
     }
@@ -51,7 +44,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
       experiment_id: form.experiment_id,
       experiment_name: exp?.name || '',
       title: form.title,
-      instructions: form.instructions,
+      description: form.instructions,
       custom_questions: customQuestions.filter(q => q.trim()),
       due_date: form.due_date,
       max_score: Number(form.max_score) || 100,
