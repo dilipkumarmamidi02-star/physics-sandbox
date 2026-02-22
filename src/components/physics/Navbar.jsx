@@ -42,6 +42,11 @@ export default function Navbar() {
 
 
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/#/RoleSelect';
+  };
+
   const navLinks = [
     { name: 'Home', href: 'Home', icon: Home },
     { name: 'Laboratory', href: 'Laboratory', icon: FlaskConical },
@@ -207,7 +212,7 @@ export default function Navbar() {
                     )}
                     <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem 
-                      onClick={() => logout()}
+                      onClick={async () => { await logout(); window.location.href = '/#/RoleSelect'; }}
                       className="text-red-400 hover:text-red-300 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
