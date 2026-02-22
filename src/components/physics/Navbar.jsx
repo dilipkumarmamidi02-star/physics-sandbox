@@ -29,14 +29,10 @@ import {
 
 export default function Navbar() {
   const location = useLocation();
-  const { user: authUser, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    if (authUser) setUser(authUser);
-  }, [authUser]);
+  
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -44,17 +40,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await Promise.resolve(null);
-        setUser(currentUser);
-      } catch (e) {
-        // Not logged in
-      }
-    };
-    loadUser();
-  }, []);
+
 
   const navLinks = [
     { name: 'Home', href: 'Home', icon: Home },
