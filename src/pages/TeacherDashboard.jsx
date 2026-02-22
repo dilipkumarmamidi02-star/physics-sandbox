@@ -1,4 +1,5 @@
 import { useAuth } from '@/lib/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { entities, integrations } from '@/lib/localStore';
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -52,12 +53,12 @@ export default function TeacherDashboard() {
 
   const { data: studentRequests = [], refetch: refetchRequests } = useQuery({
     queryKey: ['student-requests', user?.email],
-    queryFn: () => entities.TeacherStudentLink.filter({ teacher_email: user?.email }),
+    queryFn: async () => { const { data } = await supabase.from('teacher_student_links').select('*').eq('teacher_email', user?.email); return data || []; },
     enabled: !!user?.email
   });
 
   const handleLinkAction = async (linkId, action) => {
-    await entities.TeacherStudentLink.update(linkId, { status: action });
+    await supabase.from('teacher_student_links').update({ status: action }).eq('id', linkId);
     refetchRequests();
   };
 
