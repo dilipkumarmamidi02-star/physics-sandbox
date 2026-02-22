@@ -26,10 +26,6 @@ export default function ConnectTeacher() {
   }, [user]);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    
-  }, []);
-
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users-connect'],
     queryFn: async () => { const { data } = await supabase.from('profiles').select('*'); return data || []; },
