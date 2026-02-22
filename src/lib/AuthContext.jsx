@@ -4,25 +4,29 @@ import { supabase } from './supabase'
 const AuthContext = createContext({})
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('phx_user')
+    return saved ? JSON.parse(saved) : null
+  })
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        setUser({ id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student', ...profile })
+        const u = { id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student' }
+        localStorage.setItem('phx_user', JSON.stringify(u))
+        setUser(u)
       }
-      setLoading(false)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        setUser({ id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student', ...profile })
+        const u = { id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student' }
+        localStorage.setItem('phx_user', JSON.stringify(u))
+        setUser(u)
       } else {
+        localStorage.removeItem('phx_user')
         setUser(null)
       }
     })
@@ -30,15 +34,19 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const login = (userData) => setUser(userData)
+  const login = (userData) => {
+    localStorage.setItem('phx_user', JSON.stringify(userData))
+    setUser(userData)
+  }
 
   const logout = async () => {
     await supabase.auth.signOut()
+    localStorage.removeItem('phx_user')
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   )
