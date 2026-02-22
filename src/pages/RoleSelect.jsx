@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
-import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 
 export default function RoleSelect() {
   const { login } = useAuth();
-  const [mode, setMode] = useState('login'); // 'login' or 'signup'
+  const [mode, setMode] = useState('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,15 +19,20 @@ export default function RoleSelect() {
     setLoading(true);
     setError('');
     try {
-      const data = mode === 'signup'
-        ? await api.signup({ full_name: name, email, password, role })
-        : await api.login({ email, password });
-      if (data.error) return setError(data.error);
-      localStorage.setItem('physics_token', data.token);
-      login(data.user);
+      if (mode === 'signup') {
+        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        if (signUpError) { setError(signUpError.message); setLoading(false); return; }
+        await supabase.from('profiles').insert({ id: data.user.id, email, name, role });
+        login({ id: data.user.id, email, full_name: name, role });
+      } else {
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) { setError(signInError.message); setLoading(false); return; }
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+        login({ id: data.user.id, email, full_name: profile?.name || email, role: profile?.role || 'student' });
+      }
       window.location.href = '/#/';
     } catch (err) {
-      setError('Connection failed. Please try again.');
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -44,8 +49,8 @@ export default function RoleSelect() {
         <p className="text-slate-400 text-center mb-6">Virtual Physics Laboratory</p>
 
         <div className="flex mb-6 bg-slate-800 rounded-lg p-1">
-          <button onClick={() => setMode('login')} className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${mode === 'login' ? 'bg-cyan-500 text-white' : 'text-slate-400'}`}>Sign In</button>
-          <button onClick={() => setMode('signup')} className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${mode === 'signup' ? 'bg-cyan-500 text-white' : 'text-slate-400'}`}>Sign Up</button>
+          <button onClick={() => setMode('login')} className={"flex-1 py-2 rounded-md text-sm font-medium transition-all " + (mode === "login" ? "bg-cyan-500 text-white" : "text-slate-400")}>Sign In</button>
+          <button onClick={() => setMode('signup')} className={"flex-1 py-2 rounded-md text-sm font-medium transition-all " + (mode === "signup" ? "bg-cyan-500 text-white" : "text-slate-400")}>Sign Up</button>
         </div>
 
         <div className="space-y-4">
@@ -70,8 +75,8 @@ export default function RoleSelect() {
             <div>
               <label className="text-slate-300 text-sm mb-1 block">Role</label>
               <div className="flex gap-3">
-                <button onClick={() => setRole('student')} className={`flex-1 py-2 rounded-lg border transition-all ${role === 'student' ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' : 'border-slate-600 text-slate-400'}`}>Student</button>
-                <button onClick={() => setRole('teacher')} className={`flex-1 py-2 rounded-lg border transition-all ${role === 'teacher' ? 'border-purple-500 bg-purple-500/10 text-purple-400' : 'border-slate-600 text-slate-400'}`}>Teacher</button>
+                <button onClick={() => setRole('student')} className={"flex-1 py-2 rounded-lg border transition-all " + (role === "student" ? "border-cyan-500 bg-cyan-500/10 text-cyan-400" : "border-slate-600 text-slate-400")}>Student</button>
+                <button onClick={() => setRole('teacher')} className={"flex-1 py-2 rounded-lg border transition-all " + (role === "teacher" ? "border-purple-500 bg-purple-500/10 text-purple-400" : "border-slate-600 text-slate-400")}>Teacher</button>
               </div>
             </div>
           )}
