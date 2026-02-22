@@ -85,7 +85,7 @@ export default function GradingModal({ submission, assignment, open, onClose }) 
   const handleSave = () => {
     gradeMutation.mutate({
       id: submission.id,
-      data: { score: Number(score), max_score: maxScore, teacher_feedback: feedback }
+      data: { score: Number(score), max_score: maxScore, feedback: feedback }
     });
   };
 
