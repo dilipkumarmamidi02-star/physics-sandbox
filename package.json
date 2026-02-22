@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build && echo > dist/.nojekyll",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist && python3 enable_pages.py"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
