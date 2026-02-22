@@ -69,7 +69,9 @@ export default function ConnectTeacher() {
     );
   }
 
+  console.log('All users from Supabase:', allUsers);
   const teachers = allUsers.filter(u => u.role === 'teacher' || u.role === 'admin');
+  console.log('Filtered teachers:', teachers);
   const filtered = teachers.filter(t =>
     (t.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
     (t.email || '').toLowerCase().includes(search.toLowerCase()) ||
