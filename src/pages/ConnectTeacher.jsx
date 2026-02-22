@@ -25,7 +25,7 @@ export default function ConnectTeacher() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users-connect'],
     queryFn: async () => { const { data } = await supabase.from('profiles').select('*'); return data || []; },
-    enabled: !!user
+    enabled: true
   });
 
   const { data: myLinks = [] } = useQuery({
