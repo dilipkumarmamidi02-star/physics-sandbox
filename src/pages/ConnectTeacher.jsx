@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
-import { entities, integrations } from '@/lib/localStore';
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -31,18 +30,18 @@ export default function ConnectTeacher() {
 
   const { data: myLinks = [] } = useQuery({
     queryKey: ['my-teacher-links', user?.email],
-    queryFn: () => entities.TeacherStudentLink.filter({ student_email: user?.email }),
+    queryFn: async () => { const { data } = await supabase.from('teacher_student_links').select('*').eq('student_email', user?.email); return data || []; },
     enabled: !!user?.email
   });
 
   const requestMutation = useMutation({
-    mutationFn: (teacher) => entities.TeacherStudentLink.create({
+    mutationFn: async (teacher) => { await supabase.from('teacher_student_links').insert({
       student_email: user.email,
       student_name: user.full_name || user.email,
       teacher_email: teacher.email,
       teacher_name: teacher.full_name || teacher.email,
       status: 'pending'
-    }),
+    }); },
     onSuccess: () => {
       queryClient.invalidateQueries(['my-teacher-links']);
       toast.success('Request sent! Waiting for teacher approval.');
@@ -50,7 +49,7 @@ export default function ConnectTeacher() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: (linkId) => entities.TeacherStudentLink.delete(linkId),
+    mutationFn: async (linkId) => { await supabase.from('teacher_student_links').delete().eq('id', linkId); },
     onSuccess: () => {
       queryClient.invalidateQueries(['my-teacher-links']);
       toast.info('Request cancelled.');
