@@ -212,7 +212,7 @@ export default function Navbar() {
                     )}
                     <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem 
-                      onClick={async () => { await logout(); window.location.href = '/#/RoleSelect'; }}
+                      onClick={async () => { await logout(); localStorage.removeItem('phx_user'); window.location.href = '/#/RoleSelect'; }}
                       className="text-red-400 hover:text-red-300 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
