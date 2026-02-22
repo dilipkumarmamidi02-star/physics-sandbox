@@ -1,43 +1,51 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react'
+import { supabase } from './supabase'
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({})
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem('physics_sandbox_user');
-    if (saved) {
-      try { setUser(JSON.parse(saved)); } catch {}
-    }
-  }, []);
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        setUser({ id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student', ...profile })
+      }
+      setLoading(false)
+    })
 
-  const login = (userData) => {
-    const u = {
-      id: userData.email,
-      email: userData.email,
-      full_name: userData.name || userData.email.split('@')[0],
-      role: userData.role || 'student',
-      ...userData
-    };
-    localStorage.setItem('physics_sandbox_user', JSON.stringify(u));
-    setUser(u);
-  };
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        setUser({ id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student', ...profile })
+      } else {
+        setUser(null)
+      }
+    })
 
-  const logout = () => {
-    localStorage.removeItem('physics_sandbox_user');
-    setUser(null);
-  };
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const login = (userData) => setUser(userData)
+
+  const logout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+  }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
+      {!loading && children}
     </AuthContext.Provider>
-  );
+  )
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
+  const context = useContext(AuthContext)
+  if (!context) throw new Error('useAuth must be used within AuthProvider')
+  return context
 }
