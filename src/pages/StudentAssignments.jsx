@@ -1,5 +1,5 @@
 import { useAuth } from '@/lib/AuthContext';
-import { entities, integrations } from '@/lib/localStore';
+import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -29,9 +29,9 @@ function SubmitModal({ assignment, existingSubmission, user, open, onClose }) {
   const submitMutation = useMutation({
     mutationFn: async (data) => {
       if (existingSubmission?.id) {
-        return entities.StudentSubmission.update(existingSubmission.id, data);
+        const { error } = await supabase.from('student_submissions').update(data).eq('id', existingSubmission.id); if (error) throw error;
       }
-      return entities.StudentSubmission.create(data);
+      const { error } = await supabase.from('student_submissions').insert(data); if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['my-submissions']);
@@ -142,13 +142,13 @@ export default function StudentAssignments() {
 
   const { data: allAssignments = [] } = useQuery({
     queryKey: ['student-assignments', user?.email],
-    queryFn: () => entities.ExperimentAssignment.filter({ status: 'active' }),
+    queryFn: async () => { const { data } = await supabase.from('experiment_assignments').select('*').eq('status', 'active'); return data || []; },
     enabled: !!user?.email
   });
 
   const { data: submissions = [] } = useQuery({
     queryKey: ['my-submissions', user?.email],
-    queryFn: () => entities.StudentSubmission.filter({ student_email: user?.email }),
+    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').eq('student_email', user?.email); return data || []; },
     enabled: !!user?.email
   });
 
