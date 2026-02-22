@@ -1,4 +1,4 @@
-import { entities, integrations } from '@/lib/localStore';
+import { supabase } from '@/lib/supabase';
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -61,12 +61,12 @@ export default function GradingModal({ submission, assignment, open, onClose }) 
   const gradeMutation = useMutation({
     mutationFn: async ({ id, data }) => {
       const me = await Promise.resolve(null);
-      return entities.StudentSubmission.update(id, {
+      const { error } = await supabase.from('student_submissions').update({
         ...data,
         graded_by: me.email,
         graded_at: new Date().toISOString(),
         status: 'graded'
-      });
+      }).eq('id', id); if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['submissions']);
