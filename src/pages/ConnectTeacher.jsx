@@ -41,9 +41,9 @@ export default function ConnectTeacher() {
   const requestMutation = useMutation({
     mutationFn: async (teacher) => { await supabase.from('teacher_student_links').insert({
       student_email: user.email,
-      student_name: user.full_name || user.email,
+      student_name: user.name || user.email,
       teacher_email: teacher.email,
-      teacher_name: teacher.full_name || teacher.email,
+      teacher_name: teacher.name || teacher.email,
       status: 'pending'
     }); },
     onSuccess: () => {
@@ -75,7 +75,7 @@ export default function ConnectTeacher() {
 
   const teachers = allUsers.filter(u => (u.role === 'teacher' || u.role === 'admin') && u.email !== user?.email);
   const filtered = teachers.filter(t =>
-    (t.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (t.name || '').toLowerCase().includes(search.toLowerCase()) ||
     (t.email || '').toLowerCase().includes(search.toLowerCase()) ||
     (t.institution || '').toLowerCase().includes(search.toLowerCase())
   );
@@ -156,10 +156,10 @@ export default function ConnectTeacher() {
               <motion.div key={teacher.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <GlassCard className="p-4 flex items-center gap-4" hover={false}>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                    {(teacher.full_name || teacher.email).charAt(0).toUpperCase()}
+                    {(teacher.name || teacher.email).charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white">{teacher.full_name || 'Teacher'}</p>
+                    <p className="font-semibold text-white">{teacher.name || 'Teacher'}</p>
                     <p className="text-sm text-slate-400 truncate">{teacher.email}</p>
                     {teacher.institution && <p className="text-xs text-slate-500">{teacher.institution}</p>}
                   </div>
