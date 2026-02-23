@@ -39,11 +39,8 @@ export default function Simulator() {
   const [runs, setRuns] = useState([]);
   const [analysisTab, setAnalysisTab] = useState('graph');
   const [persistRecordId, setPersistRecordId] = useState(null);
-  const [userEmail, setUserEmail] = useState(null);
-
-  useEffect(() => {
-    Promise.resolve(null).then(u => setUserEmail(u?.email)).catch(() => {});
-  }, []);
+  const { user } = useAuth();
+  const userEmail = user?.email || null;
 
   // Load persistent readings on mount
   useEffect(() => {
@@ -221,6 +218,9 @@ export default function Simulator() {
               </div>
 
               <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => window.history.back()} className="border-white/10 text-slate-300 hover:bg-white/5">
+                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -261,6 +261,9 @@ export default function Simulator() {
                   {/* Overlay Controls */}
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => window.history.back()} className="border-white/10 text-slate-300 hover:bg-white/5">
+                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
                       <Button
                         size="lg"
                         onClick={handleToggleRun}
