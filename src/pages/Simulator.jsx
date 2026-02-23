@@ -84,7 +84,7 @@ export default function Simulator() {
         experiment_name: experiment.name,
         user_email: userEmail,
         readings: newReadings
-      }).catch(() => null);
+      }).select().single();
       if (rec?.id) setPersistRecordId(rec.id);
     }
   }, [experiment, userEmail, persistRecordId]);
