@@ -26,8 +26,8 @@ export const EXPERIMENTS_DATA = [
     objective: "To measure diameter of a thin wire and find its cross-sectional area",
     difficulty: "beginner",
     controls: [
-      { id: "pitch", label: "Pitch", min: 0.5, max: 1, step: 0.5, unit: "mm", default: 0.5 },
-      { id: "thimbleDivisions", label: "Thimble Divisions", min: 50, max: 100, step: 50, unit: "div", default: 50 },
+      { id: "pitch", label: "Pitch", min: 0.5, max: 1, step: 0.1, unit: "mm", default: 0.5 },
+      { id: "thimbleDivisions", label: "Thimble Divisions", min: 50, max: 100, step: 10, unit: "div", default: 50 },
       { id: "objectDiameter", label: "Wire Diameter", min: 0.1, max: 5, step: 0.01, unit: "mm", default: 1.24 },
       { id: "zeroError", label: "Zero Error (+/−)", min: -5, max: 5, step: 1, unit: "div", default: 0 }
     ],
