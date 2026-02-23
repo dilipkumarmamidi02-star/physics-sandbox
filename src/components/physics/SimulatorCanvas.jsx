@@ -180,7 +180,7 @@ export default function SimulatorCanvas({ experiment, controls, isRunning, onFra
       }
       
       ctx.beginPath();
-      ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+      ctx.arc(Math.max(6, ex), Math.max(6, ey), 6, 0, Math.PI * 2);
       ctx.fillStyle = '#00d4ff';
       ctx.shadowBlur = 10;
       ctx.shadowColor = '#00d4ff';
