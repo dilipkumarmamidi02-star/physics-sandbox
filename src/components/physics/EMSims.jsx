@@ -207,7 +207,7 @@ export function drawEMInduction(ctx, w, h, values, time) {
   return {
     surfaceType: surface.name,
     objectType: obj.name,
-    frictionType: frictionType.toUpperCase(),
+    frictionType: String(frictionType || '').toUpperCase(),
     muStatic: surface.muStatic.toFixed(3),
     muKinetic: surface.muKinetic.toFixed(3),
     normalForce: normalForce.toFixed(2),
