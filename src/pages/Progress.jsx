@@ -62,7 +62,7 @@ export default function Progress() {
 
   // Activity chart data
   const activityData = sessions.slice(0, 30).reverse().map(s => ({
-    date: new Date(s.created_at || Date.now()).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric' }),
+    date: new Date(new Date(s.created_at || Date.now()).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
     readings: s.readings?.length || 0,
     duration: Math.round((s.duration_seconds || 0) / 60)
   }));
@@ -253,7 +253,7 @@ export default function Progress() {
                             {session.experiment_name}
                           </p>
                           <p className="text-xs text-slate-500">
-                            {new Date(session.created_at || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                            {new Date(new Date(session.created_at || Date.now()).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                           </p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
