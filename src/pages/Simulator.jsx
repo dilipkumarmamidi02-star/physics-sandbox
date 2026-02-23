@@ -77,7 +77,7 @@ export default function Simulator() {
   const persistReadings = useCallback(async (newReadings) => {
     if (!experiment || !userEmail) return;
     if (persistRecordId) {
-      await supabase.from('persistent_readings').update({ readings: newReadings }).eq('id', persistRecordId).catch(() => {});
+      await supabase.from('persistent_readings').update({ readings: newReadings }).eq('id', persistRecordId);
     } else {
       const { data: rec } = await supabase.from('persistent_readings').insert({
         experiment_id: experiment.id,
@@ -103,7 +103,7 @@ export default function Simulator() {
   const handleClearReadings = useCallback(() => {
     setReadings([]);
     if (persistRecordId) {
-      supabase.from('persistent_readings').update({ readings: [] }).eq('id', persistRecordId).catch(() => {});
+      supabase.from('persistent_readings').update({ readings: [] }).eq('id', persistRecordId);
     }
   }, [persistRecordId]);
 
