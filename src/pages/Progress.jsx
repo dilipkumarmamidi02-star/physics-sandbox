@@ -1,5 +1,5 @@
 import { useAuth } from '@/lib/AuthContext';
-import { entities, integrations } from '@/lib/localStore';
+import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -21,7 +21,7 @@ import {
 import { format } from 'date-fns';
 
 export default function Progress() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -37,7 +37,7 @@ export default function Progress() {
 
   const { data: sessions = [], isLoading } = useQuery({
     queryKey: ['sessions', user?.email],
-    queryFn: () => entities.ExperimentSession.filter({ user_email: user?.email }, '-created_date', 100),
+    queryFn: async () => { const { data } = await supabase.from('experiment_sessions').select('*').eq('user_email', user?.email).order('created_at', { ascending: false }).limit(100); return data || []; },
     enabled: !!user?.email
   });
 
