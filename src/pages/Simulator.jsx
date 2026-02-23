@@ -1,5 +1,5 @@
 import { useAuth } from '@/lib/AuthContext';
-import { entities, integrations } from '@/lib/localStore';
+import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -48,7 +48,7 @@ export default function Simulator() {
   // Load persistent readings on mount
   useEffect(() => {
     if (!experiment || !userEmail) return;
-    entities.PersistentReadings.filter({ experiment_id: experiment.id, user_email: userEmail })
+    supabase.from('persistent_readings').select('*').eq('experiment_id', experiment.id).eq('user_email', userEmail).then(r => r.data?.[0])
       .then(records => {
         if (records.length > 0) {
           const rec = records[0];
@@ -80,9 +80,9 @@ export default function Simulator() {
   const persistReadings = useCallback(async (newReadings) => {
     if (!experiment || !userEmail) return;
     if (persistRecordId) {
-      await entities.PersistentReadings.update(persistRecordId, { readings: newReadings }).catch(() => {});
+      await supabase.from('persistent_readings').update({ readings: newReadings }).eq('id', persistRecordId).catch(() => {});
     } else {
-      const rec = await entities.PersistentReadings.create({
+      const { data: rec } = await supabase.from('persistent_readings').insert({
         experiment_id: experiment.id,
         experiment_name: experiment.name,
         user_email: userEmail,
@@ -106,7 +106,7 @@ export default function Simulator() {
   const handleClearReadings = useCallback(() => {
     setReadings([]);
     if (persistRecordId) {
-      entities.PersistentReadings.update(persistRecordId, { readings: [] }).catch(() => {});
+      supabase.from('persistent_readings').update({ readings: [] }).eq('id', persistRecordId).catch(() => {});
     }
   }, [persistRecordId]);
 
@@ -153,7 +153,7 @@ export default function Simulator() {
   const saveSession = useCallback(async () => {
     const user = await Promise.resolve(null);
     if (user && experiment) {
-      await entities.ExperimentSession.create({
+      await supabase.from('experiment_sessions').insert({
         experiment_id: experiment.id,
         experiment_name: experiment.name,
         user_email: user.email,
