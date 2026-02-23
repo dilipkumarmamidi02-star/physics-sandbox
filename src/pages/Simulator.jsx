@@ -151,7 +151,7 @@ export default function Simulator() {
   }, [isRunning]);
 
   const saveSession = useCallback(async () => {
-    const user = await Promise.resolve(null);
+    const user = userEmail ? { email: userEmail } : null;
     if (user && experiment) {
       await supabase.from('experiment_sessions').insert({
         experiment_id: experiment.id,
