@@ -184,7 +184,7 @@ export function drawMagneticField(ctx, w, h, values, time) {
     ctx.strokeStyle = '#64748b';
     ctx.lineWidth = 20;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, sep, 0, Math.PI, true);
+    ctx.arc(centerX, centerY, Math.max(0.1, sep), 0, Math.PI, true);
     ctx.stroke();
     
     ctx.fillStyle = '#ef4444';
@@ -482,7 +482,7 @@ function drawBall(ctx, x, y, radius, color, mass, velocity) {
   gradient.addColorStop(1, color);
   
   ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.arc(x, y, Math.max(0.1, radius), 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
   ctx.shadowBlur = 0;

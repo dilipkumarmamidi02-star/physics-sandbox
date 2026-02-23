@@ -844,7 +844,7 @@ export function drawSoundWaves(ctx, w, h, values, time) {
       ctx.strokeStyle = `rgba(245, 158, 11, ${alpha * 0.6})`;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(forkX, forkY, radius, 0, Math.PI * 2);
+      ctx.arc(forkX, forkY, Math.max(0.1, radius), 0, Math.PI * 2);
       ctx.stroke();
     }
   }
