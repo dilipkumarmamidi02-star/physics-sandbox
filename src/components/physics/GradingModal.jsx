@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -60,7 +61,7 @@ export default function GradingModal({ submission, assignment, open, onClose }) 
 
   const gradeMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const { error } = await supabase.from('student_submissions').update({
+      await updateDoc(doc(db, 'student_submissions', submission.id), {
         ...data,
         graded_by: 'teacher',
         graded_at: new Date().toISOString(),

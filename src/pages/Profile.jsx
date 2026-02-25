@@ -1,7 +1,8 @@
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -23,7 +24,7 @@ export default function Profile() {
 
   const handleSave = async () => {
     setSaving(true);
-    await supabase.from('profiles').update({ name }).eq('id', user.id);
+    await updateDoc(doc(db, 'profiles', user.id), { name });
     const updated = { ...user, full_name: name };
     localStorage.setItem('phx_user', JSON.stringify(updated));
     setMsg('Profile updated!');

@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -37,7 +38,7 @@ export default function Progress() {
 
   const { data: sessions = [], isLoading } = useQuery({
     queryKey: ['sessions', user?.email],
-    queryFn: async () => { const { data } = await supabase.from('experiment_sessions').select('*').eq('user_email', user?.email).order('created_at', { ascending: false }).limit(100); return data || []; },
+    queryFn: async () => { const q = query(collection(db, 'experiment_sessions'), where('user_email', '==', user?.email)); const snap = await getDocs(q); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 

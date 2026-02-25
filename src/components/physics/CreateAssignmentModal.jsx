@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const { data: assignment, error } = await supabase.from('experiment_assignments').insert(data).select().single(); if (error) throw error;
+      const ref = await addDoc(collection(db, 'experiment_assignments'), {...data, created_at: new Date().toISOString()}); const assignment = {id: ref.id, ...data};
 
       return assignment;
     },

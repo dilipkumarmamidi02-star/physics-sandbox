@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ export default function SubmissionsPanel({ assignment, onBack }) {
 
   const { data: submissions = [], isLoading } = useQuery({
     queryKey: ['submissions', assignment.id],
-    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').eq('assignment_id', assignment.id); return data || []; },
+    queryFn: async () => { const q = query(collection(db, 'student_submissions'), where('assignment_id', '==', assignment.id)); const snap = await getDocs(q); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!assignment.id
   });
 
