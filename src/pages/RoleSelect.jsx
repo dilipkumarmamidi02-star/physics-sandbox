@@ -1,46 +1,42 @@
-import React, { useState } from 'react';
-import { useAuth } from '@/lib/AuthContext';
-import { supabase } from '@/lib/supabase';
-import { motion } from 'framer-motion';
+import { useState } from 'react'
+import { auth, db } from '@/lib/firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { useAuth } from '@/lib/AuthContext'
+import { motion } from 'framer-motion'
 
 export default function RoleSelect() {
-  const { login } = useAuth();
-  const [mode, setMode] = useState('login');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { login } = useAuth()
+  const [mode, setMode] = useState('login')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState('student')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async () => {
-    if (!email || !password) { setError('Please fill all fields'); return; }
-    if (mode === 'signup' && !name) { setError('Please enter your name'); return; }
-    setLoading(true);
-    setError('');
+    if (!email || !password) { setError('Please fill all fields'); return }
+    if (mode === 'signup' && !name) { setError('Please enter your name'); return }
+    setLoading(true)
+    setError('')
     try {
       if (mode === 'signup') {
-        const { data, error: err } = await supabase.auth.signUp({ email, password });
-        if (err) { setError(err.message); setLoading(false); return; }
-        if (data.user) {
-          await supabase.from('profiles').upsert({ id: data.user.id, email, name, role });
-          login({ id: data.user.id, email, full_name: name, role });
-          window.location.href = '/#/';
-        }
+        const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password)
+        await setDoc(doc(db, 'profiles', firebaseUser.uid), { name, email, role, created_at: new Date().toISOString() })
+        login({ id: firebaseUser.uid, email, full_name: name, role })
       } else {
-        const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
-        if (err) { setError(err.message); setLoading(false); return; }
-        if (data.user) {
-          const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-          login({ id: data.user.id, email, full_name: profile?.name || email, role: profile?.role || 'student' });
-          window.location.href = '/#/';
-        }
+        const { user: firebaseUser } = await signInWithEmailAndPassword(auth, email, password)
+        const profileDoc = await getDoc(doc(db, 'profiles', firebaseUser.uid))
+        const profile = profileDoc.data()
+        login({ id: firebaseUser.uid, email, full_name: profile?.name || email, role: profile?.role || 'student' })
       }
+      window.location.href = '/#/'
     } catch (err) {
-      setError('Something went wrong: ' + err.message);
+      setError(err.message.replace('Firebase: ', '').replace(/\(.*\)/, ''))
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
@@ -75,5 +71,5 @@ export default function RoleSelect() {
         </div>
       </motion.div>
     </div>
-  );
+  )
 }

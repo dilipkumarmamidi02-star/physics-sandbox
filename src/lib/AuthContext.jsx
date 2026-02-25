@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from './supabase'
+import { auth, db } from './firebase'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 
 const AuthContext = createContext({})
 
@@ -10,19 +12,16 @@ export function AuthProvider({ children }) {
   })
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        const u = { id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student' }
-        localStorage.setItem('phx_user', JSON.stringify(u))
-        setUser(u)
-      }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        const u = { id: session.user.id, email: session.user.email, full_name: profile?.name || session.user.email, role: profile?.role || 'student' }
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const profileDoc = await getDoc(doc(db, 'profiles', firebaseUser.uid))
+        const profile = profileDoc.data()
+        const u = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          full_name: profile?.name || firebaseUser.email,
+          role: profile?.role || 'student'
+        }
         localStorage.setItem('phx_user', JSON.stringify(u))
         setUser(u)
       } else {
@@ -30,8 +29,7 @@ export function AuthProvider({ children }) {
         setUser(null)
       }
     })
-
-    return () => subscription.unsubscribe()
+    return () => unsubscribe()
   }, [])
 
   const login = (userData) => {
@@ -40,7 +38,7 @@ export function AuthProvider({ children }) {
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
+    await signOut(auth)
     localStorage.removeItem('phx_user')
     setUser(null)
   }
