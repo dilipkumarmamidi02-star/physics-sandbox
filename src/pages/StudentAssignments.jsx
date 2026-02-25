@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, updateDoc, doc, query, where } from 'firebase/firestore';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -29,9 +30,9 @@ function SubmitModal({ assignment, existingSubmission, user, open, onClose }) {
   const submitMutation = useMutation({
     mutationFn: async (data) => {
       if (existingSubmission?.id) {
-        const { error } = await supabase.from('student_submissions').update(data).eq('id', existingSubmission.id); if (error) throw error;
+        await updateDoc(doc(db, 'student_submissions', existingSubmission.id), data);
       }
-      const { error } = await supabase.from('student_submissions').insert(data); if (error) throw error;
+      await addDoc(collection(db, 'student_submissions'), data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['my-submissions']);
@@ -142,13 +143,13 @@ export default function StudentAssignments() {
 
   const { data: allAssignments = [] } = useQuery({
     queryKey: ['student-assignments', user?.email],
-    queryFn: async () => { const { data } = await supabase.from('experiment_assignments').select('*').eq('status', 'active'); return data || []; },
+    queryFn: async () => { const snap = await getDocs(collection(db, 'experiment_assignments')); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 
   const { data: submissions = [] } = useQuery({
     queryKey: ['my-submissions', user?.email],
-    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').eq('student_email', user?.email); return data || []; },
+    queryFn: async () => { const q = query(collection(db, 'student_submissions'), where('student_email', '==', user?.email)); const snap = await getDocs(q); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 
