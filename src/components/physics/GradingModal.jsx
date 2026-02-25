@@ -66,7 +66,7 @@ export default function GradingModal({ submission, assignment, open, onClose }) 
         graded_by: 'teacher',
         graded_at: new Date().toISOString(),
         status: 'graded'
-      }).eq('id', id); if (error) throw error;
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['submissions']);
