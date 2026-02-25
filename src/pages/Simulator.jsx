@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, updateDoc, getDocs, doc, query, where } from 'firebase/firestore';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -45,14 +46,17 @@ export default function Simulator() {
   // Load persistent readings on mount
   useEffect(() => {
     if (!experiment || !userEmail) return;
-    supabase.from('persistent_readings').select('*').eq('experiment_id', experiment.id).eq('user_email', userEmail).then(r => r.data?.[0])
-      .then(records => {
-        if (records.length > 0) {
-          const rec = records[0];
-          setReadings(rec.readings || []);
-          setPersistRecordId(rec.id);
-        }
-      }).catch(() => {});
+    (async () => {
+        try {
+          const q = query(collection(db, 'persistent_readings'), where('experiment_id', '==', experiment.id), where('user_email', '==', userEmail));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            const rec = { id: snap.docs[0].id, ...snap.docs[0].data() };
+            setReadings(rec.readings || []);
+            setPersistRecordId(rec.id);
+          }
+        } catch(e) {}
+      })();
   }, [experiment?.id, userEmail]);
 
   useEffect(() => {
@@ -77,15 +81,15 @@ export default function Simulator() {
   const persistReadings = useCallback(async (newReadings) => {
     if (!experiment || !userEmail) return;
     if (persistRecordId) {
-      await supabase.from('persistent_readings').update({ readings: newReadings }).eq('id', persistRecordId);
+      await updateDoc(doc(db, 'persistent_readings', persistRecordId), { readings: newReadings });
     } else {
-      const { data: rec } = await supabase.from('persistent_readings').insert({
+      const ref = await addDoc(collection(db, 'persistent_readings'), {
         experiment_id: experiment.id,
         experiment_name: experiment.name,
         user_email: userEmail,
         readings: newReadings
-      }).select().single();
-      if (rec?.id) setPersistRecordId(rec.id);
+      });
+      setPersistRecordId(ref.id);
     }
   }, [experiment, userEmail, persistRecordId]);
 
@@ -103,7 +107,7 @@ export default function Simulator() {
   const handleClearReadings = useCallback(() => {
     setReadings([]);
     if (persistRecordId) {
-      supabase.from('persistent_readings').update({ readings: [] }).eq('id', persistRecordId);
+      updateDoc(doc(db, 'persistent_readings', persistRecordId), { readings: [] });
     }
   }, [persistRecordId]);
 
@@ -150,7 +154,7 @@ export default function Simulator() {
   const saveSession = useCallback(async () => {
     const user = userEmail ? { email: userEmail } : null;
     if (user && experiment) {
-      await supabase.from('experiment_sessions').insert({
+      await addDoc(collection(db, 'experiment_sessions'), {
         experiment_id: experiment.id,
         experiment_name: experiment.name,
         user_email: user.email,
