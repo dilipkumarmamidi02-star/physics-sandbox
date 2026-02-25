@@ -1,6 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
-import { supabase } from '@/lib/supabase';
-import { entities, integrations } from '@/lib/localStore';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, updateDoc, doc, query, where, orderBy, limit } from 'firebase/firestore';
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -29,19 +29,19 @@ export default function TeacherDashboard() {
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['assignments', user?.email],
-    queryFn: async () => { const { data } = await supabase.from('experiment_assignments').select('*').eq('teacher_email', user?.email); return data || []; },
+    queryFn: async () => { const q = query(collection(db, 'experiment_assignments'), where('teacher_email', '==', user?.email)); const snap = await getDocs(q); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 
   const { data: allSubmissions = [] } = useQuery({
     queryKey: ['all-submissions'],
-    queryFn: async () => { const { data } = await supabase.from('student_submissions').select('*').order('submitted_at', { ascending: false }).limit(200); return data || []; },
+    queryFn: async () => { const snap = await getDocs(collection(db, 'student_submissions')); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
-    queryFn: async () => { const { data } = await supabase.from('profiles').select('*'); return data || []; },
+    queryFn: async () => { const snap = await getDocs(collection(db, 'profiles')); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user
   });
 
@@ -53,12 +53,12 @@ export default function TeacherDashboard() {
 
   const { data: studentRequests = [], refetch: refetchRequests } = useQuery({
     queryKey: ['student-requests', user?.email],
-    queryFn: async () => { const { data } = await supabase.from('teacher_student_links').select('*').eq('teacher_email', user?.email); return data || []; },
+    queryFn: async () => { const q = query(collection(db, 'teacher_student_links'), where('teacher_email', '==', user?.email)); const snap = await getDocs(q); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 
   const handleLinkAction = async (linkId, action) => {
-    await supabase.from('teacher_student_links').update({ status: action }).eq('id', linkId);
+    await updateDoc(doc(db, 'teacher_student_links', linkId), { status: action });
     refetchRequests();
   };
 
