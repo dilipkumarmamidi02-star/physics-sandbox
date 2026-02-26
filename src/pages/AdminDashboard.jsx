@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
-import { entities, integrations } from '@/lib/localStore';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -46,13 +47,13 @@ export default function AdminDashboard() {
 
   const { data: users = [] } = useQuery({
     queryKey: ['admin-users'],
-    queryFn: () => entities.User.list(),
+    queryFn: async () => { const snap = await getDocs(collection(db, 'profiles')); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: user?.role === 'admin'
   });
 
   const { data: allSessions = [] } = useQuery({
     queryKey: ['admin-sessions'],
-    queryFn: () => entities.ExperimentSession.list('-created_date', 500),
+    queryFn: async () => { const snap = await getDocs(collection(db, 'experiment_sessions')); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: user?.role === 'admin'
   });
 

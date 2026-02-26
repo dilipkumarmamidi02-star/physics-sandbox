@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
-import { entities, integrations } from '@/lib/localStore';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -38,12 +39,12 @@ export default function TemplateBuilder() {
 
   const { data: myTemplates = [] } = useQuery({
     queryKey: ['my-templates', user?.email],
-    queryFn: () => entities.ExperimentTemplate.filter({ teacher_email: user?.email }),
+    queryFn: async () => { const q = query(collection(db, 'experiment_templates'), where('teacher_email', '==', user?.email)); const snap = await getDocs(q); return snap.docs.map(d => ({id: d.id, ...d.data()})); },
     enabled: !!user?.email
   });
 
   const createTemplateMutation = useMutation({
-    mutationFn: (data) => entities.ExperimentTemplate.create(data),
+    mutationFn: async (data) => { const ref = await addDoc(collection(db, 'experiment_templates'), {...data, created_at: new Date().toISOString()}); return {id: ref.id, ...data}; },
     onSuccess: () => {
       queryClient.invalidateQueries(['my-templates']);
       setSaved(true);
@@ -52,7 +53,7 @@ export default function TemplateBuilder() {
   });
 
   const deleteTemplateMutation = useMutation({
-    mutationFn: (id) => entities.ExperimentTemplate.delete(id),
+    mutationFn: async (id) => { await deleteDoc(doc(db, 'experiment_templates', id)); },
     onSuccess: () => queryClient.invalidateQueries(['my-templates'])
   });
 
