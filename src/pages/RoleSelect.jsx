@@ -44,7 +44,8 @@ export default function RoleSelect() {
         // Check Firebase Auth for existing email first
         const methods = await fetchSignInMethodsForEmail(auth, email)
         if (methods.length > 0) {
-          setError('An account with this email already exists. Please sign in instead.')
+          setMode('login')
+          setInfo('Account already exists. We switched to Sign In — just enter your password.')
           setLoading(false)
           return
         }
