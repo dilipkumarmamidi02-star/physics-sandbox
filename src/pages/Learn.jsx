@@ -22,74 +22,83 @@ const EXPERIMENTS = [
 ];
 
 const PAPERS = [
-  // Class 12 CBSE
-  { year: 2024, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2024/XII_Physics_2024.pdf" },
-  { year: 2023, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2023/XII_Physics_2023.pdf" },
-  { year: 2023, class: "Class 12", board: "CBSE", set: "Set 2", url: "https://cbseacademic.nic.in/web_material/QP/2023/XII_Physics_2023_S2.pdf" },
-  { year: 2022, class: "Class 12", board: "CBSE", set: "Term 2", url: "https://cbseacademic.nic.in/web_material/QP/2022/XII_Physics_T2_2022.pdf" },
-  { year: 2022, class: "Class 12", board: "CBSE", set: "Term 1", url: "https://cbseacademic.nic.in/web_material/QP/2022/XII_Physics_T1_2022.pdf" },
-  { year: 2020, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2020/XII_Physics_2020.pdf" },
-  { year: 2019, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2019/XII_Physics_2019.pdf" },
-  { year: 2019, class: "Class 12", board: "CBSE", set: "Set 2", url: "https://cbseacademic.nic.in/web_material/QP/2019/XII_Physics_2019_S2.pdf" },
-  { year: 2018, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2018/XII_Physics_2018.pdf" },
-  { year: 2017, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2017/XII_Physics_2017.pdf" },
-  { year: 2016, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2016/XII_Physics_2016.pdf" },
-  { year: 2015, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2015/XII_Physics_2015.pdf" },
-  { year: 2014, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2014/XII_Physics_2014.pdf" },
-  { year: 2013, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2013/XII_Physics_2013.pdf" },
-  { year: 2012, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2012/XII_Physics_2012.pdf" },
-  { year: 2011, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2011/XII_Physics_2011.pdf" },
-  { year: 2010, class: "Class 12", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2010/XII_Physics_2010.pdf" },
-  // Class 12 Sample Papers
-  { year: 2024, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/SQP/2023-24/XII_Physics_SQP.pdf" },
-  { year: 2023, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/SQP/2022-23/XII_Physics_SQP.pdf" },
-  { year: 2022, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/SQP/2021-22/XII_Physics_SQP.pdf" },
-  // Class 11 CBSE
-  { year: 2024, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2024/XI_Physics_2024.pdf" },
-  { year: 2023, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2023/XI_Physics_2023.pdf" },
-  { year: 2022, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2022/XI_Physics_2022.pdf" },
-  { year: 2021, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2021/XI_Physics_2021.pdf" },
-  { year: 2020, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2020/XI_Physics_2020.pdf" },
-  { year: 2019, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2019/XI_Physics_2019.pdf" },
-  { year: 2018, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2018/XI_Physics_2018.pdf" },
-  { year: 2017, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2017/XI_Physics_2017.pdf" },
-  { year: 2016, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2016/XI_Physics_2016.pdf" },
-  { year: 2015, class: "Class 11", board: "CBSE", set: "Set 1", url: "https://cbseacademic.nic.in/web_material/QP/2015/XI_Physics_2015.pdf" },
-  // JEE
-  { year: 2024, class: "JEE Main", board: "NTA", set: "Jan Session", url: "https://jeemain.nta.ac.in/webinfo/Public/GetSampleQP.aspx" },
-  { year: 2023, class: "JEE Main", board: "NTA", set: "Jan Session", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2023_JAN_SHIFT1_Physics.pdf" },
-  { year: 2022, class: "JEE Main", board: "NTA", set: "Session 1", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2022_JEE_Physics.pdf" },
-  { year: 2021, class: "JEE Main", board: "NTA", set: "Feb Session", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2021_JEE_Physics.pdf" },
-  { year: 2020, class: "JEE Main", board: "NTA", set: "Jan Session", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2020_JEE_Physics.pdf" },
-  { year: 2019, class: "JEE Main", board: "NTA", set: "Jan Session", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2019_JEE_Physics.pdf" },
+  // ── CBSE Class 12 Sample Question Papers (verified URLs) ──
+  { year: 2026, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXII_2025_26/Physics-SQP.pdf" },
+  { year: 2025, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXII_2024_25/Physics-SQP.pdf" },
+  { year: 2024, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXII_2023_24/Physics-SQP.pdf" },
+  { year: 2023, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXII_2022_23/Physics-SQP.pdf" },
+  { year: 2022, class: "Class 12", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXII_2021_22/Physics-SQP.pdf" },
+  // ── CBSE Class 11 Sample Question Papers ──
+  { year: 2026, class: "Class 11", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXI_2025_26/Physics-SQP.pdf" },
+  { year: 2025, class: "Class 11", board: "CBSE Sample", set: "Sample", url: "https://cbseacademic.nic.in/web_material/SQP/ClassXI_2024_25/Physics-SQP.pdf" },
+  // ── JEE Advanced (verified jeeadv.ac.in URLs) ──
   { year: 2024, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2024/1/EN.pdf" },
-  { year: 2023, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2023/1/EN.pdf" },
-  { year: 2022, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2022/1/EN.pdf" },
-  { year: 2021, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2021/1/EN.pdf" },
-  { year: 2020, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2020/1/EN.pdf" },
-  { year: 2019, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2019/1/EN.pdf" },
-  { year: 2018, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2018/1/EN.pdf" },
-  { year: 2017, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2017/1/en.pdf" },
-  { year: 2016, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2016/1/en.pdf" },
   { year: 2024, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2024/2/EN.pdf" },
+  { year: 2023, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2023/1/EN.pdf" },
   { year: 2023, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2023/2/EN.pdf" },
+  { year: 2022, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2022/1/EN.pdf" },
   { year: 2022, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2022/2/EN.pdf" },
-  // NEET
-  { year: 2024, class: "NEET", board: "NTA", set: "Physics Section", url: "https://neet.nta.nic.in/webinfo/Public/GetSampleQP.aspx" },
-  { year: 2023, class: "NEET", board: "NTA", set: "Physics Section", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2023_NEET_Physics.pdf" },
-  { year: 2022, class: "NEET", board: "NTA", set: "Physics Section", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2022_NEET_Physics.pdf" },
-  { year: 2021, class: "NEET", board: "NTA", set: "Physics Section", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2021_NEET_Physics.pdf" },
-  { year: 2020, class: "NEET", board: "NTA", set: "Physics Section", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2020_NEET_Physics.pdf" },
-  { year: 2019, class: "NEET", board: "NTA", set: "Physics Section", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2019_NEET_Physics.pdf" },
-  { year: 2018, class: "NEET", board: "NTA", set: "Physics Section", url: "https://cdn.digialm.com/EForms/configuredHtml/1258/84258/Exam/PdfQuestion/2018_NEET_Physics.pdf" },
+  { year: 2021, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2021/1/EN.pdf" },
+  { year: 2021, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2021/2/EN.pdf" },
+  { year: 2020, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2020/1/EN.pdf" },
+  { year: 2020, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2020/2/EN.pdf" },
+  { year: 2019, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2019/1/EN.pdf" },
+  { year: 2019, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2019/2/EN.pdf" },
+  { year: 2018, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2018/1/EN.pdf" },
+  { year: 2018, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2018/2/EN.pdf" },
+  { year: 2017, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2017/1/en.pdf" },
+  { year: 2017, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2017/2/en.pdf" },
+  { year: 2016, class: "JEE Advanced", board: "IIT", set: "Paper 1", url: "https://jeeadv.ac.in/past_qps/2016/1/en.pdf" },
+  { year: 2016, class: "JEE Advanced", board: "IIT", set: "Paper 2", url: "https://jeeadv.ac.in/past_qps/2016/2/en.pdf" },
+  // ── JEE Main — search page (NTA doesn't host static PDFs) ──
+  { year: 2024, class: "JEE Main", board: "NTA", set: "All Sessions", url: "https://jeemain.nta.ac.in/" },
+  { year: 2023, class: "JEE Main", board: "NTA", set: "All Sessions", url: "https://jeemain.nta.ac.in/" },
+  { year: 2022, class: "JEE Main", board: "NTA", set: "All Sessions", url: "https://jeemain.nta.ac.in/" },
+  { year: 2021, class: "JEE Main", board: "NTA", set: "All Sessions", url: "https://jeemain.nta.ac.in/" },
+  { year: 2020, class: "JEE Main", board: "NTA", set: "All Sessions", url: "https://jeemain.nta.ac.in/" },
+  // ── NEET — NTA portal ──
+  { year: 2024, class: "NEET", board: "NTA", set: "Physics Section", url: "https://neet.nta.nic.in/" },
+  { year: 2023, class: "NEET", board: "NTA", set: "Physics Section", url: "https://neet.nta.nic.in/" },
+  { year: 2022, class: "NEET", board: "NTA", set: "Physics Section", url: "https://neet.nta.nic.in/" },
+  { year: 2021, class: "NEET", board: "NTA", set: "Physics Section", url: "https://neet.nta.nic.in/" },
+  { year: 2020, class: "NEET", board: "NTA", set: "Physics Section", url: "https://neet.nta.nic.in/" },
+  // ── State Engineering Entrance Exams ──
+  { year: 2024, class: "State Exam", board: "TS EAMCET", set: "Engineering", url: "https://eamcet.tsche.ac.in/" },
+  { year: 2024, class: "State Exam", board: "AP EAMCET", set: "Engineering", url: "https://sche.ap.gov.in/EAPCET/" },
+  { year: 2024, class: "State Exam", board: "MHT CET", set: "PCM", url: "https://cetcell.mahacet.org/" },
+  { year: 2024, class: "State Exam", board: "KCET", set: "Physics", url: "https://kea.kar.nic.in/" },
+  { year: 2024, class: "State Exam", board: "WBJEE", set: "Physics", url: "https://wbjeeb.nic.in/" },
+  { year: 2024, class: "State Exam", board: "GUJCET", set: "Physics", url: "https://gseb.org/gujcet.html" },
+  { year: 2024, class: "State Exam", board: "COMEDK", set: "Physics", url: "https://www.comedk.org/" },
+  { year: 2024, class: "State Exam", board: "VITEEE", set: "Physics", url: "https://viteee.vit.ac.in/" },
+  { year: 2024, class: "State Exam", board: "BITSAT", set: "Physics", url: "https://www.bitsadmission.com/" },
+  { year: 2024, class: "State Exam", board: "KEAM", set: "Physics", url: "https://cee.kerala.gov.in/" },
+  { year: 2024, class: "State Exam", board: "RPET/REAP", set: "Physics", url: "https://techedu.rajasthan.gov.in/" },
+  { year: 2024, class: "State Exam", board: "MP PET", set: "Physics", url: "https://peb.mp.gov.in/" },
+  { year: 2024, class: "State Exam", board: "UP SEEE/UPCET", set: "Physics", url: "https://upcet.nta.ac.in/" },
+  { year: 2024, class: "State Exam", board: "OJEE", set: "Physics", url: "https://ojee.nic.in/" },
+  { year: 2024, class: "State Exam", board: "JCECE", set: "Physics", url: "https://jceceb.jharkhand.gov.in/" },
+  { year: 2024, class: "State Exam", board: "BCECE", set: "Physics", url: "https://bceceboard.bihar.gov.in/" },
+  { year: 2024, class: "State Exam", board: "CUSAT CAT", set: "Physics", url: "https://admissions.cusat.ac.in/" },
+  { year: 2024, class: "State Exam", board: "TANCET", set: "Physics", url: "https://www.annauniv.edu/tancet/" },
+  { year: 2024, class: "State Exam", board: "PGCET Karnataka", set: "Physics", url: "https://kea.kar.nic.in/" },
+  { year: 2024, class: "State Exam", board: "HP PAT", set: "Physics", url: "https://himtu.ac.in/" },
+  { year: 2024, class: "State Exam", board: "GCET Goa", set: "Physics", url: "https://www.dhegoa.gov.in/" },
+  { year: 2024, class: "State Exam", board: "AUEET", set: "Physics", url: "https://aucet.andhrauniversity.edu.in/" },
+  { year: 2024, class: "State Exam", board: "PESSAT", set: "Physics", url: "https://pes.edu/pessat/" },
+  { year: 2024, class: "State Exam", board: "SRMJEE", set: "Physics", url: "https://www.srmist.edu.in/admissions/srmjeee/" },
+  { year: 2024, class: "State Exam", board: "MANIPAL MET", set: "Physics", url: "https://manipal.edu/mu/admissions/uget.html" },
+  { year: 2024, class: "State Exam", board: "AMU Engg", set: "Physics", url: "https://www.amu.ac.in/" },
+  { year: 2024, class: "State Exam", board: "IPU CET", set: "Physics", url: "https://ipu.ac.in/ipu_cet.php" },
+  { year: 2024, class: "State Exam", board: "NATA", set: "Physics", url: "https://www.nata.in/" },
 ];
 
-const PAPER_CLASSES = ["All", "Class 11", "Class 12", "JEE Main", "JEE Advanced", "NEET"];
+const PAPER_CLASSES = ["All", "Class 11", "Class 12", "JEE Main", "JEE Advanced", "NEET", "State Exam"];
 const CATEGORIES = ["All", "Measurement", "Mechanics", "Waves", "Electricity", "Optics", "Modern Physics"];
 const LEVELS = ["All", "Class 11", "Class 12", "B.Tech"];
 const categoryColors = { Measurement: "from-slate-400 to-slate-600", Mechanics: "from-emerald-500 to-teal-600", Waves: "from-blue-500 to-cyan-600", Electricity: "from-yellow-400 to-amber-600", Optics: "from-orange-400 to-red-500", "Modern Physics": "from-purple-500 to-fuchsia-600" };
 const levelColors = { "Class 11": "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30", "Class 12": "bg-blue-500/10 text-blue-400 border border-blue-500/30", "B.Tech": "bg-purple-500/10 text-purple-400 border border-purple-500/30" };
-const boardColors = { "CBSE": "bg-blue-500/10 text-blue-400", "CBSE Sample": "bg-cyan-500/10 text-cyan-400", "NTA": "bg-green-500/10 text-green-400", "IIT": "bg-orange-500/10 text-orange-400" };
+const boardColors = { "CBSE": "bg-blue-500/10 text-blue-400", "CBSE Sample": "bg-cyan-500/10 text-cyan-400", "NTA": "bg-green-500/10 text-green-400", "IIT": "bg-orange-500/10 text-orange-400", "TS EAMCET": "bg-red-500/10 text-red-400", "AP EAMCET": "bg-red-500/10 text-red-400", "MHT CET": "bg-yellow-500/10 text-yellow-400", "KCET": "bg-purple-500/10 text-purple-400", "WBJEE": "bg-teal-500/10 text-teal-400", "GUJCET": "bg-amber-500/10 text-amber-400", "COMEDK": "bg-indigo-500/10 text-indigo-400", "VITEEE": "bg-pink-500/10 text-pink-400", "BITSAT": "bg-sky-500/10 text-sky-400", "KEAM": "bg-emerald-500/10 text-emerald-400", "RPET/REAP": "bg-orange-500/10 text-orange-400", "MP PET": "bg-lime-500/10 text-lime-400", "UP SEEE/UPCET": "bg-violet-500/10 text-violet-400", "OJEE": "bg-cyan-500/10 text-cyan-400", "JCECE": "bg-rose-500/10 text-rose-400", "BCECE": "bg-fuchsia-500/10 text-fuchsia-400", "CUSAT CAT": "bg-teal-500/10 text-teal-400", "TANCET": "bg-blue-500/10 text-blue-400", "PGCET Karnataka": "bg-purple-500/10 text-purple-400", "HP PAT": "bg-slate-500/10 text-slate-400", "GCET Goa": "bg-green-500/10 text-green-400", "AUEET": "bg-red-500/10 text-red-400", "PESSAT": "bg-pink-500/10 text-pink-400", "SRMJEE": "bg-indigo-500/10 text-indigo-400", "MANIPAL MET": "bg-amber-500/10 text-amber-400", "AMU Engg": "bg-emerald-500/10 text-emerald-400", "IPU CET": "bg-sky-500/10 text-sky-400", "NATA": "bg-orange-500/10 text-orange-400" };
 
 export default function Learn() {
   const [tab, setTab] = useState("experiments");
@@ -166,7 +175,11 @@ export default function Learn() {
                     <p className="text-xs text-slate-400 pl-4 mt-1">{exp.topic}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <a href={exp.ncertUrl} target="_blank" rel="noopener noreferrer"
+                    <a href={`/#/simulator/${exp.id}`}
+                  className="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 text-sm hover:bg-purple-500/20 transition-colors font-medium mb-2">
+                  <FlaskConical className="w-4 h-4" /> Open Simulation
+                </a>
+                <a href={exp.ncertUrl} target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-1 py-1.5 px-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs hover:bg-cyan-500/20 transition-colors">
                       <BookOpen className="w-3 h-3" /> Read NCERT <ExternalLink className="w-3 h-3" />
                     </a>
@@ -217,7 +230,7 @@ export default function Learn() {
                   </div>
                   <a href={paper.url} target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-sm hover:bg-cyan-500/20 transition-colors font-medium">
-                    <FileText className="w-4 h-4" /> Open Paper <ExternalLink className="w-3 h-3" />
+                    <FileText className="w-4 h-4" /> {paper.url.endsWith('.pdf') ? 'Open PDF' : 'Open Portal'} <ExternalLink className="w-3 h-3" />
                   </a>
                 </motion.div>
               ))}
