@@ -35,19 +35,20 @@ export function AuthProvider({ children }) {
         let snap = await getDoc(ref)
 
         if (!snap.exists()) {
-          const pending = JSON.parse(localStorage.getItem('phx_pending_role') || '{}')
+          // Profile doesn't exist yet - RoleSelect will create it on first login
+          // For OAuth users who bypassed RoleSelect, create with default student role
           await setDoc(ref, {
             email: firebaseUser.email || '',
             name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            role: pending.role || 'student',
+            role: 'student',
             phone: firebaseUser.phoneNumber || '',
             photoURL: firebaseUser.photoURL || '',
             provider: firebaseUser.providerData[0]?.providerId || 'unknown',
             created_at: new Date().toISOString()
           })
-          localStorage.removeItem('phx_pending_role')
           snap = await getDoc(ref)
         }
+        // Never update existing profile - role is permanent once set
 
         const profile = { id: firebaseUser.uid, ...snap.data() }
         setUser(profile)

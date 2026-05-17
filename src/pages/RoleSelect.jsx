@@ -26,6 +26,8 @@ export default function RoleSelect() {
 
   const saveProfile = async (firebaseUser) => {
     const ref = doc(db, 'profiles', firebaseUser.uid)
+    const snap = await getDoc(ref)
+    if (snap.exists()) return // Never overwrite existing profile
     await setDoc(ref, {
       email: firebaseUser.email || '',
       name: firebaseUser.displayName || name || firebaseUser.email?.split('@')[0] || 'User',
@@ -34,7 +36,7 @@ export default function RoleSelect() {
       photoURL: firebaseUser.photoURL || '',
       provider: firebaseUser.providerData[0]?.providerId || 'unknown',
       created_at: new Date().toISOString()
-    }, { merge: true })
+    })
   }
 
   const handleEmailAuth = async (e) => {
