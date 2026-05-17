@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   sendEmailVerification,
@@ -41,9 +42,7 @@ export default function RoleSelect() {
     try {
       if (mode === 'signup') {
         // Check Firebase Auth for existing email first
-        const methods = await import('firebase/auth').then(m =>
-          m.fetchSignInMethodsForEmail(auth, email)
-        )
+        const methods = await fetchSignInMethodsForEmail(auth, email)
         if (methods.length > 0) {
           setError('An account with this email already exists. Please sign in instead.')
           setLoading(false)
