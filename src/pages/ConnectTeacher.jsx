@@ -37,7 +37,7 @@ function VideoRoom({ roomId, onClose, user }) {
 
     const join = async () => {
       try {
-        await client.join(AGORA_APP_ID, roomId, null, null)
+        await client.join(AGORA_APP_ID, roomId, "PASTE_TEMP_TOKEN_HERE", null)
         const [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks()
         setLocalTracks([audioTrack, videoTrack])
         videoTrack.play(localRef.current)
