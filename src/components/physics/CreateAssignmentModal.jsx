@@ -15,6 +15,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
   const queryClient = useQueryClient();
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [customQuestions, setCustomQuestions] = useState(['']);
+  const [presetValues, setPresetValues] = useState({});
   const [form, setForm] = useState({
     title: '', experiment_id: '', description: '',
     deadline: '', max_score: 100, student_group_name: ''
@@ -32,6 +33,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
       setForm({ title: '', experiment_id: '', description: '', deadline: '', max_score: 100, student_group_name: '' });
       setSelectedStudents([]);
       setCustomQuestions(['']);
+      setPresetValues({});
     }
   });
 
@@ -47,6 +49,7 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
       title: form.title,
       description: form.instructions,
       custom_questions: customQuestions.filter(q => q.trim()),
+      preset_values: presetValues,
       deadline: form.due_date ? new Date(form.due_date).toISOString() : null,
       max_score: Number(form.max_score) || 100,
       status: 'active'
@@ -154,6 +157,35 @@ export default function CreateAssignmentModal({ open, onClose, teacherEmail, stu
               ))}
             </div>
           </div>
+
+          {/* Preset Input Values */}
+          {form.experiment_id && (() => {
+            const exp = EXPERIMENTS_DATA.find(e => e.id === form.experiment_id)
+            if (!exp?.controls?.length) return null
+            return (
+              <div>
+                <label className="block text-sm text-slate-400 mb-2 flex items-center gap-1">
+                  <BookOpen className="w-4 h-4" /> Preset Experiment Values <span className="text-xs text-slate-500 ml-1">(students will use these exact values)</span>
+                </label>
+                <div className="space-y-2 bg-slate-800/50 p-3 rounded-lg border border-white/5">
+                  {exp.controls.map(ctrl => (
+                    <div key={ctrl.id} className="flex items-center gap-3">
+                      <label className="text-sm text-slate-300 w-40 shrink-0">{ctrl.label}</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder={String(ctrl.default)}
+                        value={presetValues[ctrl.id] ?? ''}
+                        onChange={e => setPresetValues(p => ({...p, [ctrl.id]: e.target.value === '' ? undefined : Number(e.target.value)}))}
+                        className="flex-1 bg-slate-700 border border-white/10 rounded px-3 py-1.5 text-white text-sm outline-none"
+                      />
+                      <span className="text-xs text-slate-500 w-12 shrink-0">{ctrl.unit || ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Due Date & Score */}
           <div className="grid grid-cols-2 gap-4">

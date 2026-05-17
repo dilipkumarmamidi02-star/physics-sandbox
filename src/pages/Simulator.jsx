@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  ArrowLeft, Play, Pause, RotateCcw, Maximize2, Minimize2, 
+  ArrowLeft, Play, Pause, RotateCcw, Maximize2, Minimize2, Send, 
   Save, Atom, ChevronRight, TrendingUp
 } from 'lucide-react';
 import AnimatedBackground from '@/components/physics/AnimatedBackground';
@@ -28,6 +28,7 @@ export default function Simulator() {
   const hashSearch = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : window.location.search;
   const urlParams = new URLSearchParams(hashSearch);
   const experimentId = urlParams.get('id');
+  const assignmentId = urlParams.get('assignment_id');
   
   const experiment = EXPERIMENTS_DATA.find(e => e.id === experimentId);
   
@@ -42,6 +43,9 @@ export default function Simulator() {
   const [persistRecordId, setPersistRecordId] = useState(null);
   const { user } = useAuth();
   const userEmail = user?.email || null;
+  const [assignment, setAssignment] = useState(null);
+  const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Load persistent readings on mount
   useEffect(() => {
@@ -59,19 +63,44 @@ export default function Simulator() {
       })();
   }, [experiment?.id, userEmail]);
 
+  // Fetch assignment if in assignment mode
+  useEffect(() => {
+    if (!assignmentId || !userEmail) return;
+    (async () => {
+      try {
+        const { getDocs: gd, collection: col, query: q, where: w } = await import('firebase/firestore');
+        const snap = await getDocs(query(collection(db, 'experiment_assignments'), where('__name__', '==', assignmentId)));
+        if (!snap.empty) {
+          const asgn = { id: snap.docs[0].id, ...snap.docs[0].data() };
+          setAssignment(asgn);
+        }
+      } catch(e) { console.error(e); }
+    })();
+  }, [assignmentId, userEmail]);
+
   useEffect(() => {
     if (experiment) {
       const initialControls = {};
       experiment.controls.forEach(ctrl => {
         initialControls[ctrl.id] = ctrl.default;
       });
+      // If assignment has preset values, override defaults
+      if (assignment?.preset_values && Object.keys(assignment.preset_values).length > 0) {
+        experiment.controls.forEach(ctrl => {
+          if (assignment.preset_values[ctrl.id] !== undefined) {
+            initialControls[ctrl.id] = assignment.preset_values[ctrl.id];
+          }
+        });
+      }
       setControls(initialControls);
     }
-  }, [experiment]);
+  }, [experiment, assignment]);
 
   const handleControlChange = useCallback((id, value) => {
+    // Block changes to preset values when in assignment mode
+    if (assignment?.preset_values && assignment.preset_values[id] !== undefined) return;
     setControls(prev => ({ ...prev, [id]: value }));
-  }, []);
+  }, [assignment]);
 
   const handleFrame = useCallback((frameResults) => {
     setResults(frameResults);
@@ -167,7 +196,43 @@ export default function Simulator() {
   }, [experiment, readings, startTime]);
 
   if (!experiment) {
-    return (
+    const handleAssignmentSubmit = async () => {
+    if (!assignment || !user || submitting) return;
+    setSubmitting(true);
+    try {
+      const { addDoc, collection: col } = await import('firebase/firestore');
+      // Build answers from results
+      const autoAnswers = (assignment.custom_questions || []).map(q => ({
+        question: q,
+        answer: '[Auto-captured from experiment results]'
+      }));
+      // Build experiment results summary
+      const resultsSummary = Object.entries(results).map(([k, v]) => `${k}: ${typeof v === 'number' ? v.toFixed(4) : v}`).join(', ');
+      const inputsSummary = Object.entries(controls).map(([k, v]) => `${k}: ${v}`).join(', ');
+      await addDoc(collection(db, 'student_submissions'), {
+        assignment_id: assignment.id,
+        student_email: user.email,
+        student_name: user.full_name || user.displayName || user.email,
+        experiment_id: assignment.experiment_id,
+        experiment_name: assignment.experiment_name,
+        answers: autoAnswers,
+        experiment_inputs: controls,
+        experiment_results: results,
+        student_notes: `Inputs: ${inputsSummary} | Results: ${resultsSummary}`,
+        submitted_at: new Date().toISOString(),
+        status: 'submitted',
+        max_score: assignment.max_score || 100,
+        readings: readings
+      });
+      setAssignmentSubmitted(true);
+    } catch(e) {
+      console.error('Submit error:', e);
+      alert('Submission failed: ' + e.message);
+    }
+    setSubmitting(false);
+  };
+
+  return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <AnimatedBackground />
         <GlassCard className="p-8 text-center max-w-md mx-4 relative z-10">
@@ -234,6 +299,22 @@ export default function Simulator() {
                   <Save className="w-4 h-4 mr-2" />
                   Save
                 </Button>
+                {assignment && !assignmentSubmitted && (
+                  <Button
+                    size="sm"
+                    onClick={handleAssignmentSubmit}
+                    disabled={submitting}
+                    className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold animate-pulse"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    {submitting ? 'Submitting...' : 'Submit Assignment'}
+                  </Button>
+                )}
+                {assignmentSubmitted && (
+                  <Badge className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1.5">
+                    ✅ Submitted!
+                  </Badge>
+                )}
                 <Button
                   variant="outline"
                   size="icon"

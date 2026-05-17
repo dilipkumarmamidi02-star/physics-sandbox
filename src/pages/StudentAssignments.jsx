@@ -223,10 +223,26 @@ export default function StudentAssignments() {
             <p className="text-sm text-slate-400 mb-3 line-clamp-2">{assignment.instructions}</p>
           )}
 
+          {/* Questions Preview */}
           {assignment.custom_questions?.length > 0 && (
-            <div className="flex items-center gap-1 text-xs text-slate-500 mb-3">
-              <FileText className="w-3 h-3" />
-              {assignment.custom_questions.length} question{assignment.custom_questions.length > 1 ? 's' : ''} to answer
+            <div className="mb-3 bg-slate-800/60 rounded-lg p-3 border border-white/5">
+              <p className="text-xs text-slate-400 font-medium mb-2 flex items-center gap-1"><FileText className="w-3 h-3" /> Questions to Answer</p>
+              <ol className="space-y-1">
+                {assignment.custom_questions.map((q, i) => (
+                  <li key={i} className="text-sm text-slate-300">Q{i+1}: {q}</li>
+                ))}
+              </ol>
+            </div>
+          )}
+          {/* Preset Values */}
+          {assignment.preset_values && Object.keys(assignment.preset_values).length > 0 && (
+            <div className="mb-3 bg-cyan-500/5 rounded-lg p-3 border border-cyan-500/20">
+              <p className="text-xs text-cyan-400 font-medium mb-2 flex items-center gap-1"><FlaskConical className="w-3 h-3" /> Preset Experiment Values</p>
+              <div className="grid grid-cols-2 gap-1">
+                {Object.entries(assignment.preset_values).map(([k, v]) => (
+                  <span key={k} className="text-xs text-slate-300"><span className="text-slate-500">{k}:</span> {v}</span>
+                ))}
+              </div>
             </div>
           )}
 
@@ -251,7 +267,7 @@ export default function StudentAssignments() {
             </div>
 
             <div className="flex gap-2">
-              <Link to={`${createPageUrl('Simulator')}?id=${assignment.experiment_id}`}>
+              <Link to={`${createPageUrl('Simulator')}?id=${assignment.experiment_id}&assignment_id=${assignment.id}`}>
                 <Button size="sm" variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs">
                   <FlaskConical className="w-3 h-3 mr-1" /> Run Experiment
                 </Button>
