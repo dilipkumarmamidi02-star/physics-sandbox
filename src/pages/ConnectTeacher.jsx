@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast'
 import { Search, UserPlus, GraduationCap, Video, VideoOff, Mic, MicOff, MessageCircle, X, Send, Phone } from 'lucide-react'
 import AgoraRTC from 'agora-rtc-sdk-ng'
 
-const AGORA_APP_ID = 'YOUR_AGORA_APP_ID'
+const AGORA_APP_ID = 'f6bd677bb8f74e608d189276eede3aba'
 
 function VideoRoom({ roomId, onClose, user }) {
   const clientRef = useRef(null)
