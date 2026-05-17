@@ -7,7 +7,7 @@ import {
   sendEmailVerification,
   updateProfile
 } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db, googleProvider, githubProvider } from '../lib/firebase'
 
 export default function RoleSelect() {
@@ -40,6 +40,15 @@ export default function RoleSelect() {
     e.preventDefault(); clearMessages(); setLoading(true)
     try {
       if (mode === 'signup') {
+        // Check Firebase Auth for existing email first
+        const methods = await import('firebase/auth').then(m =>
+          m.fetchSignInMethodsForEmail(auth, email)
+        )
+        if (methods.length > 0) {
+          setError('An account with this email already exists. Please sign in instead.')
+          setLoading(false)
+          return
+        }
         const cred = await createUserWithEmailAndPassword(auth, email, password)
         await updateProfile(cred.user, { displayName: name })
         await sendEmailVerification(cred.user)
