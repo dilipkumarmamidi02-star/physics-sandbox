@@ -1,6 +1,6 @@
 import { useAuth } from '@/lib/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, updateDoc, getDocs, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDocs, getDoc, doc, query, where } from 'firebase/firestore';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -65,18 +65,16 @@ export default function Simulator() {
 
   // Fetch assignment if in assignment mode
   useEffect(() => {
-    if (!assignmentId || !userEmail) return;
+    if (!assignmentId) return;
     (async () => {
       try {
-        const { getDocs: gd, collection: col, query: q, where: w } = await import('firebase/firestore');
-        const snap = await getDocs(query(collection(db, 'experiment_assignments'), where('__name__', '==', assignmentId)));
-        if (!snap.empty) {
-          const asgn = { id: snap.docs[0].id, ...snap.docs[0].data() };
-          setAssignment(asgn);
+        const snap = await getDoc(doc(db, 'experiment_assignments', assignmentId));
+        if (snap.exists()) {
+          setAssignment({ id: snap.id, ...snap.data() });
         }
-      } catch(e) { console.error(e); }
+      } catch(e) { console.error('Assignment fetch error:', e); }
     })();
-  }, [assignmentId, userEmail]);
+  }, [assignmentId]);
 
   useEffect(() => {
     if (experiment) {
@@ -200,8 +198,7 @@ export default function Simulator() {
     if (!assignment || !user || submitting) return;
     setSubmitting(true);
     try {
-      const { addDoc, collection: col } = await import('firebase/firestore');
-      // Build answers from results
+        // Build answers from results
       const autoAnswers = (assignment.custom_questions || []).map(q => ({
         question: q,
         answer: '[Auto-captured from experiment results]'
