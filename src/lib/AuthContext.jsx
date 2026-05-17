@@ -18,10 +18,7 @@ export function AuthProvider({ children }) {
         return
       }
 
-      // Block unverified email/password users
-      const isEmailProvider = firebaseUser.providerData.some(
-        p => p.providerId === 'password'
-      )
+      const isEmailProvider = firebaseUser.providerData.some(p => p.providerId === 'password')
       if (isEmailProvider && !firebaseUser.emailVerified) {
         await auth.signOut()
         setUser(null)
@@ -35,8 +32,6 @@ export function AuthProvider({ children }) {
         let snap = await getDoc(ref)
 
         if (!snap.exists()) {
-          // Profile doesn't exist yet - RoleSelect will create it on first login
-          // For OAuth users who bypassed RoleSelect, create with default student role
           await setDoc(ref, {
             email: firebaseUser.email || '',
             name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
@@ -48,8 +43,8 @@ export function AuthProvider({ children }) {
           })
           snap = await getDoc(ref)
         }
-        // Never update existing profile - role is permanent once set
 
+        // Always read fresh from Firestore - never trust localStorage for role
         const profile = { id: firebaseUser.uid, ...snap.data() }
         setUser(profile)
         localStorage.setItem('phx_user', JSON.stringify(profile))
@@ -65,7 +60,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await auth.signOut()
     localStorage.clear()
-    window.location.href = '/#/RoleSelect'
+    window.location.href = '/'
   }
 
   return (
