@@ -4,8 +4,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signInWithPhoneNumber,
-  RecaptchaVerifier,
   sendEmailVerification,
   updateProfile
 } from 'firebase/auth'
@@ -19,15 +17,24 @@ export default function RoleSelect() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [confirmResult, setConfirmResult] = useState(null)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
 
   const clearMessages = () => { setError(''); setInfo('') }
+
+  const saveProfile = async (firebaseUser) => {
+    const ref = doc(db, 'profiles', firebaseUser.uid)
+    await setDoc(ref, {
+      email: firebaseUser.email || '',
+      name: firebaseUser.displayName || name || firebaseUser.email?.split('@')[0] || 'User',
+      role,
+      phone: '',
+      photoURL: firebaseUser.photoURL || '',
+      provider: firebaseUser.providerData[0]?.providerId || 'unknown',
+      created_at: new Date().toISOString()
+    }, { merge: true })
+  }
 
   const handleEmailAuth = async (e) => {
     e.preventDefault(); clearMessages(); setLoading(true)
@@ -35,114 +42,71 @@ export default function RoleSelect() {
       if (mode === 'signup') {
         const cred = await createUserWithEmailAndPassword(auth, email, password)
         await updateProfile(cred.user, { displayName: name })
-        await setDoc(doc(db, 'profiles', cred.user.uid), {
-          email, name, role, phone: '', photoURL: '',
-          provider: 'password', created_at: new Date().toISOString()
-        })
         await sendEmailVerification(cred.user)
+        await saveProfile(cred.user)
         await auth.signOut()
-        setInfo('✅ Verification email sent! Check your inbox, verify, then sign in.')
+        setInfo('✅ Verification email sent! Please verify then sign in.')
       } else {
-        await signInWithEmailAndPassword(auth, email, password)
-        navigate('/')
+        const cred = await signInWithEmailAndPassword(auth, email, password)
+        if (!cred.user.emailVerified) {
+          await auth.signOut()
+          setError('Please verify your email before signing in.')
+        } else {
+          await saveProfile(cred.user)
+          navigate('/dashboard')
+        }
       }
-    } catch (err) { setError(friendlyError(err.code)) }
+    } catch (err) {
+      setError(friendlyError(err.code))
+    }
     setLoading(false)
   }
 
   const handleGoogle = async () => {
     clearMessages(); setLoading(true)
     try {
-      localStorage.setItem('phx_pending_role', JSON.stringify({ role }))
-      const result = await signInWithPopup(auth, googleProvider)
-      navigate('/')
-    } catch (err) { setError(friendlyError(err.code)) }
+      const cred = await signInWithPopup(auth, googleProvider)
+      await saveProfile(cred.user)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(friendlyError(err.code))
+    }
     setLoading(false)
   }
 
   const handleGithub = async () => {
     clearMessages(); setLoading(true)
     try {
-      localStorage.setItem('phx_pending_role', JSON.stringify({ role }))
-      await signInWithPopup(auth, githubProvider)
-      navigate('/')
-    } catch (err) { setError(friendlyError(err.code)) }
-    setLoading(false)
-  }
-
-  const sendOTP = async (e) => {
-    e.preventDefault(); clearMessages(); setLoading(true)
-    try {
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-      }
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'normal',
-        'expired-callback': () => {
-          setError('reCAPTCHA expired. Please try again.')
-          window.recaptchaVerifier?.clear()
-          window.recaptchaVerifier = null
-          setLoading(false)
-        }
-      })
-      await window.recaptchaVerifier.render()
-      const result = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-      setConfirmResult(result)
-      setOtpSent(true)
-      setInfo('✅ OTP sent to ' + phone)
+      const cred = await signInWithPopup(auth, githubProvider)
+      await saveProfile(cred.user)
+      navigate('/dashboard')
     } catch (err) {
       setError(friendlyError(err.code))
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-      }
-    } finally {
-      setLoading(false)
     }
-  }
-
-  const verifyOTP = async (e) => {
-    e.preventDefault(); clearMessages(); setLoading(true)
-    try {
-      localStorage.setItem('phx_pending_role', JSON.stringify({ role }))
-      await confirmResult.confirm(otp)
-      navigate('/')
-    } catch (err) { setError('Invalid OTP. Please try again.') }
     setLoading(false)
   }
 
   const friendlyError = (code) => ({
-    'auth/email-already-in-use': 'This email is already registered. Please sign in.',
+    'auth/email-already-in-use': 'Email already registered.',
     'auth/wrong-password': 'Incorrect password.',
-    'auth/invalid-credential': 'Incorrect email or password.',
-    'auth/user-not-found': 'No account found. Please sign up.',
-    'auth/invalid-email': 'Invalid email address.',
+    'auth/user-not-found': 'No account with this email.',
     'auth/weak-password': 'Password must be at least 6 characters.',
-    'auth/popup-closed-by-user': 'Sign-in popup was closed. Try again.',
-    'auth/popup-blocked': 'Popup blocked by browser. Please allow popups for this site.',
-    'auth/invalid-phone-number': 'Invalid phone number. Use format: +91XXXXXXXXXX',
-    'auth/too-many-requests': 'Too many attempts. Please wait a few minutes.',
-    'auth/account-exists-with-different-credential': 'Account exists with a different sign-in method.',
-    'auth/operation-not-allowed': 'This sign-in method is not enabled yet.',
-    'auth/unauthorized-domain': 'Domain not authorized. Please contact support.',
-  }[code] || 'Something went wrong: ' + code)
-
-  const inp = { width:'100%', padding:'10px 14px', background:'#0f172a', border:'1px solid #334155', borderRadius:8, color:'#f1f5f9', fontSize:14, marginBottom:10, outline:'none', boxSizing:'border-box' }
-  const primaryBtn = { width:'100%', padding:'11px', background:'#0891b2', border:'none', borderRadius:8, color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', marginTop:4 }
-  const oauthBtn = (bg) => ({ width:'100%', padding:'10px', background:bg, border:'none', borderRadius:8, color:'#fff', fontWeight:600, fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:10 })
+    'auth/invalid-email': 'Invalid email address.',
+    'auth/popup-closed-by-user': 'Sign-in popup was closed.',
+    'auth/account-exists-with-different-credential': 'Account exists with different sign-in method.',
+  }[code] || 'Something went wrong. Please try again.')
 
   return (
-    <div style={{ minHeight:'100vh', background:'#0f172a', display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem' }}>
-      <div style={{ width:'100%', maxWidth:440, background:'#1e293b', borderRadius:16, padding:'2rem', border:'1px solid #334155' }}>
+    <div style={{ minHeight:'100vh', background:'#0f172a', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'sans-serif' }}>
+      <div style={{ background:'#1e293b', borderRadius:16, padding:'2rem', width:'100%', maxWidth:420, boxShadow:'0 8px 32px #0008' }}>
 
         <div style={{ textAlign:'center', marginBottom:'1.5rem' }}>
-          <div style={{ fontSize:36, marginBottom:8 }}>⚛️</div>
-          <h1 style={{ color:'#06b6d4', fontSize:22, fontWeight:700, margin:0 }}>PHX-MASTER</h1>
-          <p style={{ color:'#94a3b8', fontSize:13, margin:'4px 0 0' }}>Virtual Physics Laboratory</p>
+          <div style={{ fontSize:40 }}>⚛️</div>
+          <h2 style={{ color:'#06b6d4', margin:'8px 0 4px', fontSize:22, fontWeight:800 }}>PHX-MASTER</h2>
+          <p style={{ color:'#64748b', fontSize:13, margin:0 }}>Virtual Physics Laboratory</p>
         </div>
 
-        <div style={{ display:'flex', background:'#0f172a', borderRadius:8, padding:4, marginBottom:'1.5rem' }}>
+        <div style={{ display:'flex', gap:8, marginBottom:'1.5rem' }}>
           {['student','teacher'].map(r => (
             <button key={r} onClick={() => setRole(r)}
               style={{ flex:1, padding:'8px', borderRadius:6, border:'none', cursor:'pointer', fontWeight:600, fontSize:13, background:role===r?'#06b6d4':'transparent', color:role===r?'#fff':'#94a3b8' }}>
@@ -152,10 +116,10 @@ export default function RoleSelect() {
         </div>
 
         <div style={{ display:'flex', gap:8, marginBottom:'1.5rem' }}>
-          {['login','signup','phone'].map(m => (
-            <button key={m} onClick={() => { setMode(m); clearMessages(); if(window.recaptchaVerifier){window.recaptchaVerifier.clear();window.recaptchaVerifier=null} }}
+          {['login','signup'].map(m => (
+            <button key={m} onClick={() => { setMode(m); clearMessages() }}
               style={{ flex:1, padding:'7px', borderRadius:6, cursor:'pointer', fontSize:12, fontWeight:600, border:`1px solid ${mode===m?'#06b6d4':'#334155'}`, background:mode===m?'#164e63':'transparent', color:mode===m?'#06b6d4':'#64748b' }}>
-              {m==='login'?'🔑 Login':m==='signup'?'📝 Sign Up':'📱 Phone'}
+              {m==='login'?'🔑 Login':'📝 Sign Up'}
             </button>
           ))}
         </div>
@@ -163,47 +127,15 @@ export default function RoleSelect() {
         {error && <div style={{ background:'#450a0a', border:'1px solid #ef4444', borderRadius:8, padding:'10px 14px', color:'#fca5a5', fontSize:13, marginBottom:12 }}>{error}</div>}
         {info && <div style={{ background:'#052e16', border:'1px solid #22c55e', borderRadius:8, padding:'10px 14px', color:'#86efac', fontSize:13, marginBottom:12 }}>{info}</div>}
 
-        {(mode==='login'||mode==='signup') && (
-          <form onSubmit={handleEmailAuth}>
-            {mode==='signup' && <input value={name} onChange={e=>setName(e.target.value)} placeholder="Full Name" required style={inp}/>}
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" required style={inp}/>
-            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password (min 6 chars)" required style={inp}/>
-            <button type="submit" disabled={loading} style={primaryBtn}>
-              {loading?'⏳ Please wait...':mode==='login'?'🔑 Sign In':'📝 Create Account'}
-            </button>
-            {mode==='signup' && <p style={{ color:'#94a3b8', fontSize:11, marginTop:6, textAlign:'center' }}>A verification email will be sent. You must verify before logging in.</p>}
-          </form>
-        )}
-
-        {mode==='phone' && (
-          <div>
-            {!otpSent ? (
-              <form onSubmit={sendOTP}>
-                <input value={phone} onChange={e=>setPhone(e.target.value)}
-                  placeholder="Phone: +91XXXXXXXXXX" required style={inp}/>
-                <div id="recaptcha-container" style={{ margin:'10px 0' }}></div>
-                <button type="submit" disabled={loading} style={primaryBtn}>
-                  {loading?'⏳ Setting up...':'📲 Send OTP'}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={verifyOTP}>
-                <p style={{ color:'#86efac', fontSize:13, marginBottom:10 }}>{info}</p>
-                <input value={otp} onChange={e=>setOtp(e.target.value)}
-                  placeholder="Enter 6-digit OTP" required style={inp} maxLength={6}/>
-                <button type="submit" disabled={loading} style={primaryBtn}>
-                  {loading?'⏳ Verifying...':'✅ Verify OTP'}
-                </button>
-                <button type="button" onClick={() => {
-                  setOtpSent(false); setOtp(''); setInfo(''); clearMessages()
-                  if(window.recaptchaVerifier){window.recaptchaVerifier.clear();window.recaptchaVerifier=null}
-                }} style={{ ...primaryBtn, background:'transparent', border:'1px solid #334155', color:'#94a3b8', marginTop:6 }}>
-                  ← Change Number
-                </button>
-              </form>
-            )}
-          </div>
-        )}
+        <form onSubmit={handleEmailAuth}>
+          {mode==='signup' && <input value={name} onChange={e=>setName(e.target.value)} placeholder="Full Name" required style={inp}/>}
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" required style={inp}/>
+          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password (min 6 chars)" required style={inp}/>
+          <button type="submit" disabled={loading} style={primaryBtn}>
+            {loading?'⏳ Please wait...':mode==='login'?'🔑 Sign In':'📝 Create Account'}
+          </button>
+          {mode==='signup' && <p style={{ color:'#94a3b8', fontSize:11, marginTop:6, textAlign:'center' }}>A verification email will be sent. You must verify before logging in.</p>}
+        </form>
 
         <div style={{ display:'flex', alignItems:'center', gap:10, margin:'1.2rem 0' }}>
           <div style={{ flex:1, height:1, background:'#334155' }}/>
@@ -236,7 +168,22 @@ export default function RoleSelect() {
             {mode==='login'?'Sign Up':'Sign In'}
           </span>
         </p>
+
       </div>
     </div>
   )
 }
+
+const inp = {
+  width:'100%', padding:'10px 14px', background:'#0f172a', border:'1px solid #334155',
+  borderRadius:8, color:'#f1f5f9', fontSize:14, marginBottom:10, outline:'none', boxSizing:'border-box'
+}
+const primaryBtn = {
+  width:'100%', padding:'11px', background:'#0891b2', border:'none', borderRadius:8,
+  color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', marginTop:4
+}
+const oauthBtn = (bg) => ({
+  width:'100%', padding:'10px', background:bg, border:'none', borderRadius:8,
+  color:'#fff', fontWeight:600, fontSize:14, cursor:'pointer',
+  display:'flex', alignItems:'center', justifyContent:'center', gap:10
+})
