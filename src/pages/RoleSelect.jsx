@@ -73,39 +73,31 @@ export default function RoleSelect() {
   const sendOTP = async (e) => {
     e.preventDefault(); clearMessages(); setLoading(true)
     try {
-      // Clear any existing verifier first
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear()
         window.recaptchaVerifier = null
       }
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'normal',
-        callback: async (token) => {
-          // reCAPTCHA solved - now send OTP
-          try {
-            const result = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-            setConfirmResult(result)
-            setOtpSent(true)
-            setInfo('✅ OTP sent to ' + phone)
-          } catch (err) {
-            setError(friendlyError(err.code))
-          }
-          setLoading(false)
-        },
         'expired-callback': () => {
           setError('reCAPTCHA expired. Please try again.')
-          window.recaptchaVerifier.clear()
+          window.recaptchaVerifier?.clear()
           window.recaptchaVerifier = null
           setLoading(false)
         }
       })
-      window.recaptchaVerifier.render()
+      await window.recaptchaVerifier.render()
+      const result = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+      setConfirmResult(result)
+      setOtpSent(true)
+      setInfo('✅ OTP sent to ' + phone)
     } catch (err) {
       setError(friendlyError(err.code))
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear()
         window.recaptchaVerifier = null
       }
+    } finally {
       setLoading(false)
     }
   }
