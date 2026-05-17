@@ -1,57 +1,77 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db } from './firebase'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
 
-const AuthContext = createContext({})
+const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('phx_user')
-    return saved ? JSON.parse(saved) : null
-  })
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const profileDoc = await getDoc(doc(db, 'profiles', firebaseUser.uid))
-        const profile = profileDoc.data()
-        const u = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email,
-          full_name: profile?.name || firebaseUser.email,
-          role: profile?.role || 'student'
-        }
-        localStorage.setItem('phx_user', JSON.stringify(u))
-        setUser(u)
-      } else {
-        localStorage.removeItem('phx_user')
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
         setUser(null)
+        localStorage.removeItem('phx_user')
+        setLoading(false)
+        return
       }
+
+      // Block unverified email/password users
+      const isEmailProvider = firebaseUser.providerData.some(
+        p => p.providerId === 'password'
+      )
+      if (isEmailProvider && !firebaseUser.emailVerified) {
+        await auth.signOut()
+        setUser(null)
+        localStorage.removeItem('phx_user')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const ref = doc(db, 'profiles', firebaseUser.uid)
+        let snap = await getDoc(ref)
+
+        if (!snap.exists()) {
+          const pending = JSON.parse(localStorage.getItem('phx_pending_role') || '{}')
+          await setDoc(ref, {
+            email: firebaseUser.email || '',
+            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            role: pending.role || 'student',
+            phone: firebaseUser.phoneNumber || '',
+            photoURL: firebaseUser.photoURL || '',
+            provider: firebaseUser.providerData[0]?.providerId || 'unknown',
+            created_at: new Date().toISOString()
+          })
+          localStorage.removeItem('phx_pending_role')
+          snap = await getDoc(ref)
+        }
+
+        const profile = { id: firebaseUser.uid, ...snap.data() }
+        setUser(profile)
+        localStorage.setItem('phx_user', JSON.stringify(profile))
+      } catch (err) {
+        console.error('Profile error:', err)
+      }
+
+      setLoading(false)
     })
-    return () => unsubscribe()
+    return () => unsub()
   }, [])
 
-  const login = (userData) => {
-    localStorage.setItem('phx_user', JSON.stringify(userData))
-    setUser(userData)
-  }
-
   const logout = async () => {
-    await signOut(auth)
-    localStorage.removeItem('phx_user')
-    setUser(null)
+    await auth.signOut()
+    localStorage.clear()
+    window.location.href = '/#/RoleSelect'
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   )
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth must be used within AuthProvider')
-  return context
-}
+export const useAuth = () => useContext(AuthContext)
