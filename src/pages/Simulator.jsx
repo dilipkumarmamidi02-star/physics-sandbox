@@ -171,6 +171,39 @@ export default function Simulator() {
     }
   }, [experiment]);
 
+  const handleAssignmentSubmit = async () => {
+    if (!assignment || !user || submitting) return;
+    setSubmitting(true);
+    try {
+      const autoAnswers = (assignment.custom_questions || []).map(q => ({
+        question: q,
+        answer: '[Auto-captured from experiment results]'
+      }));
+      const resultsSummary = Object.entries(results).map(([k, v]) => `${k}: ${typeof v === 'number' ? v.toFixed(4) : v}`).join(', ');
+      const inputsSummary = Object.entries(controls).map(([k, v]) => `${k}: ${v}`).join(', ');
+      await addDoc(collection(db, 'student_submissions'), {
+        assignment_id: assignment.id,
+        student_email: user.email,
+        student_name: user.full_name || user.displayName || user.email,
+        experiment_id: assignment.experiment_id,
+        experiment_name: assignment.experiment_name,
+        answers: autoAnswers,
+        experiment_inputs: controls,
+        experiment_results: results,
+        student_notes: `Inputs: ${inputsSummary} | Results: ${resultsSummary}`,
+        submitted_at: new Date().toISOString(),
+        status: 'submitted',
+        max_score: assignment.max_score || 100,
+        readings: readings
+      });
+      setAssignmentSubmitted(true);
+    } catch(e) {
+      console.error('Submit error:', e);
+      alert('Submission failed: ' + e.message);
+    }
+    setSubmitting(false);
+  };
+
   const handleToggleRun = useCallback(() => {
     if (!isRunning) {
       setStartTime(Date.now());
