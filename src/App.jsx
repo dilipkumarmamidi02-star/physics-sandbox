@@ -19,6 +19,7 @@ import TeacherDashboard from './pages/TeacherDashboard'
 import TemplateBuilder from './pages/TemplateBuilder'
 import RoleSelect from './pages/RoleSelect'
 import ConnectTeacher from './pages/ConnectTeacher'
+import Quiz from './pages/Quiz'
 import Layout from './Layout'
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
             <Route path="/TeacherDashboard" element={<Layout currentPageName="TeacherDashboard"><TeacherDashboard /></Layout>} />
             <Route path="/TemplateBuilder" element={<Layout currentPageName="TemplateBuilder"><TemplateBuilder /></Layout>} />
             <Route path="/RoleSelect" element={<Layout currentPageName="RoleSelect"><RoleSelect /></Layout>} />
+            <Route path="/Quiz" element={<Layout currentPageName="Quiz"><Quiz /></Layout>} />
             <Route path="/ConnectTeacher" element={<Layout currentPageName="ConnectTeacher"><ConnectTeacher /></Layout>} />
             <Route path="*" element={<Layout currentPageName="Home"><Home /></Layout>} />
           </Routes>

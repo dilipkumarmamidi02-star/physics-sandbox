@@ -11,6 +11,9 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db, googleProvider, githubProvider } from '../lib/firebase'
 
+const CLASS_LEVELS = ['Class 11', 'Class 12', 'B.Tech']
+const TEACHES_CLASS = ['Class 11', 'Class 12', 'B.Tech', 'All Classes']
+
 export default function RoleSelect() {
   const navigate = useNavigate()
   const [mode, setMode] = useState('login')
@@ -18,6 +21,8 @@ export default function RoleSelect() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [classLevel, setClassLevel] = useState('Class 11')
+  const [teachesClass, setTeachesClass] = useState('Class 11')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
@@ -27,15 +32,21 @@ export default function RoleSelect() {
   const saveProfile = async (firebaseUser) => {
     const ref = doc(db, 'profiles', firebaseUser.uid)
     const snap = await getDoc(ref)
-    if (snap.exists()) return // Never overwrite existing profile
+    if (snap.exists()) return
     await setDoc(ref, {
       email: firebaseUser.email || '',
       name: firebaseUser.displayName || name || firebaseUser.email?.split('@')[0] || 'User',
       role,
+      classLevel: role === 'student' ? classLevel : null,
+      teachesClass: role === 'teacher' ? teachesClass : null,
       phone: '',
       photoURL: firebaseUser.photoURL || '',
       provider: firebaseUser.providerData[0]?.providerId || 'unknown',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      streak: 0,
+      lastQuizDate: null,
+      totalScore: 0,
+      quizzesAttempted: 0
     })
   }
 
@@ -43,7 +54,6 @@ export default function RoleSelect() {
     e.preventDefault(); clearMessages(); setLoading(true)
     try {
       if (mode === 'signup') {
-        // Check Firebase Auth for existing email first
         const methods = await fetchSignInMethodsForEmail(auth, email)
         if (methods.length > 0) {
           setError('⛔ An account with this email already exists. Please sign in instead.')
@@ -63,7 +73,7 @@ export default function RoleSelect() {
           setError('Please verify your email before signing in.')
         } else {
           await saveProfile(cred.user)
-          navigate('/dashboard')
+          navigate('/Home')
         }
       }
     } catch (err) {
@@ -77,10 +87,8 @@ export default function RoleSelect() {
     try {
       const cred = await signInWithPopup(auth, googleProvider)
       await saveProfile(cred.user)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(friendlyError(err.code))
-    }
+      navigate('/Home')
+    } catch (err) { setError(friendlyError(err.code)) }
     setLoading(false)
   }
 
@@ -89,10 +97,8 @@ export default function RoleSelect() {
     try {
       const cred = await signInWithPopup(auth, githubProvider)
       await saveProfile(cred.user)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(friendlyError(err.code))
-    }
+      navigate('/Home')
+    } catch (err) { setError(friendlyError(err.code)) }
     setLoading(false)
   }
 
@@ -103,29 +109,31 @@ export default function RoleSelect() {
     'auth/weak-password': 'Password must be at least 6 characters.',
     'auth/invalid-email': 'Invalid email address.',
     'auth/popup-closed-by-user': 'Sign-in popup was closed.',
+    'auth/invalid-credential': 'Invalid email or password.',
     'auth/account-exists-with-different-credential': 'Account exists with different sign-in method.',
   }[code] || 'Something went wrong. Please try again.')
 
   return (
-    <div style={{ minHeight:'100vh', background:'#0f172a', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'sans-serif' }}>
-      <div style={{ background:'#1e293b', borderRadius:16, padding:'2rem', width:'100%', maxWidth:420, boxShadow:'0 8px 32px #0008' }}>
-
+    <div style={{ minHeight:'100vh', background:'#0f172a', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'sans-serif', padding:'20px' }}>
+      <div style={{ background:'#1e293b', borderRadius:16, padding:'2rem', width:'100%', maxWidth:440, boxShadow:'0 8px 32px #0008' }}>
         <div style={{ textAlign:'center', marginBottom:'1.5rem' }}>
           <div style={{ fontSize:40 }}>⚛️</div>
           <h2 style={{ color:'#06b6d4', margin:'8px 0 4px', fontSize:22, fontWeight:800 }}>PHX-MASTER</h2>
           <p style={{ color:'#64748b', fontSize:13, margin:0 }}>Virtual Physics Laboratory</p>
         </div>
 
-        <div style={{ display:'flex', gap:8, marginBottom:'1.5rem' }}>
+        {/* Role selector */}
+        <div style={{ display:'flex', gap:8, marginBottom:'1rem' }}>
           {['student','teacher'].map(r => (
             <button key={r} onClick={() => setRole(r)}
-              style={{ flex:1, padding:'8px', borderRadius:6, border:'none', cursor:'pointer', fontWeight:600, fontSize:13, background:role===r?'#06b6d4':'transparent', color:role===r?'#fff':'#94a3b8' }}>
+              style={{ flex:1, padding:'8px', borderRadius:6, border:'none', cursor:'pointer', fontWeight:600, fontSize:13, background:role===r?'#06b6d4':'#0f172a', color:role===r?'#fff':'#94a3b8' }}>
               {r==='student'?'🎓 Student':'👨‍🏫 Teacher'}
             </button>
           ))}
         </div>
 
-        <div style={{ display:'flex', gap:8, marginBottom:'1.5rem' }}>
+        {/* Mode tabs */}
+        <div style={{ display:'flex', gap:8, marginBottom:'1rem' }}>
           {['login','signup'].map(m => (
             <button key={m} onClick={() => { setMode(m); clearMessages() }}
               style={{ flex:1, padding:'7px', borderRadius:6, cursor:'pointer', fontSize:12, fontWeight:600, border:`1px solid ${mode===m?'#06b6d4':'#334155'}`, background:mode===m?'#164e63':'transparent', color:mode===m?'#06b6d4':'#64748b' }}>
@@ -138,7 +146,24 @@ export default function RoleSelect() {
         {info && <div style={{ background:'#052e16', border:'1px solid #22c55e', borderRadius:8, padding:'10px 14px', color:'#86efac', fontSize:13, marginBottom:12 }}>{info}</div>}
 
         <form onSubmit={handleEmailAuth}>
-          {mode==='signup' && <input value={name} onChange={e=>setName(e.target.value)} placeholder="Full Name" required style={inp}/>}
+          {mode==='signup' && <>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Full Name" required style={inp}/>
+            {/* Class selection for signup */}
+            <div style={{ marginBottom:10 }}>
+              <label style={{ color:'#94a3b8', fontSize:12, display:'block', marginBottom:4 }}>
+                {role==='student' ? '📚 Your Class Level' : '🏫 Class You Teach'}
+              </label>
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                {(role==='student' ? CLASS_LEVELS : TEACHES_CLASS).map(c => (
+                  <button key={c} type="button"
+                    onClick={() => role==='student' ? setClassLevel(c) : setTeachesClass(c)}
+                    style={{ padding:'6px 12px', borderRadius:20, fontSize:11, fontWeight:600, cursor:'pointer', border:`1px solid ${(role==='student'?classLevel:teachesClass)===c?'#06b6d4':'#334155'}`, background:(role==='student'?classLevel:teachesClass)===c?'#164e63':'transparent', color:(role==='student'?classLevel:teachesClass)===c?'#06b6d4':'#64748b' }}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>}
           <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" required style={inp}/>
           <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password (min 6 chars)" required style={inp}/>
           <button type="submit" disabled={loading} style={primaryBtn}>
@@ -178,22 +203,11 @@ export default function RoleSelect() {
             {mode==='login'?'Sign Up':'Sign In'}
           </span>
         </p>
-
       </div>
     </div>
   )
 }
 
-const inp = {
-  width:'100%', padding:'10px 14px', background:'#0f172a', border:'1px solid #334155',
-  borderRadius:8, color:'#f1f5f9', fontSize:14, marginBottom:10, outline:'none', boxSizing:'border-box'
-}
-const primaryBtn = {
-  width:'100%', padding:'11px', background:'#0891b2', border:'none', borderRadius:8,
-  color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', marginTop:4
-}
-const oauthBtn = (bg) => ({
-  width:'100%', padding:'10px', background:bg, border:'none', borderRadius:8,
-  color:'#fff', fontWeight:600, fontSize:14, cursor:'pointer',
-  display:'flex', alignItems:'center', justifyContent:'center', gap:10
-})
+const inp = { width:'100%', padding:'10px 14px', background:'#0f172a', border:'1px solid #334155', borderRadius:8, color:'#f1f5f9', fontSize:14, marginBottom:10, outline:'none', boxSizing:'border-box' }
+const primaryBtn = { width:'100%', padding:'11px', background:'#0891b2', border:'none', borderRadius:8, color:'#fff', fontWeight:700, fontSize:14, cursor:'pointer', marginTop:4 }
+const oauthBtn = (bg) => ({ width:'100%', padding:'10px', background:bg, border:'none', borderRadius:8, color:'#fff', fontWeight:600, fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:10 })
