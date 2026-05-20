@@ -48,13 +48,41 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Home', href: 'Home', icon: Home },
-    { name: 'Laboratory', href: 'Laboratory', icon: FlaskConical },
-    { name: 'My Progress', href: 'Progress', icon: BarChart3 },
-    { name: 'Learn', href: 'Learn', icon: BookOpen },
-    { name: 'Assignments', href: 'StudentAssignments', icon: BookOpen },
-    { name: 'My Teachers', href: 'ConnectTeacher', icon: User },
-  ];
+  { name: 'Quiz', href: 'quiz', icon: Sparkles },
+
+  { name: 'Home', href: 'Home', icon: Home },
+
+  {
+    name: 'Laboratory',
+    href: 'Laboratory',
+    icon: FlaskConical
+  },
+
+  {
+    name: 'My Progress',
+    href: 'Progress',
+    icon: BarChart3
+  },
+
+  {
+    name: 'Learn',
+    href: 'Learn',
+    icon: BookOpen
+  },
+
+  {
+    name: 'Assignments',
+    href: 'StudentAssignments',
+    icon: BookOpen
+  },
+
+  {
+    name: 'My Teachers',
+    href: 'ConnectTeacher',
+    icon: User
+  },
+];
+
 
   const isActive = (href) => {
     const currentPage = location.pathname.split('/').pop() || 'Home';
