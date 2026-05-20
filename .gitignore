@@ -25,3 +25,5 @@ dist-ssr
 *.sln
 *.sw?
 .github_token
+.vercel
+.env*.local

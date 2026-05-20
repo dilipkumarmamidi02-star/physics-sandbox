@@ -2,9 +2,8 @@ import React from 'react'
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from '@/lib/AuthContext';
-import { pagesConfig } from './pages.config'
+import { HashRouter as Router, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from '@/lib/AuthContext'
 
 import Home from './pages/Home'
 import Laboratory from './pages/Laboratory'
