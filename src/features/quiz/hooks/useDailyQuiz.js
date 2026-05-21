@@ -1,134 +1,130 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 
 import {
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  limit,
   doc,
+  getDoc,
+  setDoc,
   updateDoc,
   increment
-} from 'firebase/firestore'
+} from "firebase/firestore"
 
-import { db } from '@/lib/firebase'
-import { useAuth } from '@/lib/AuthContext'
-import { loadDailyQuiz } from '../engine/loadDailyQuiz'
+import { db } from "@/lib/firebase"
+
+import { useAuth } from "@/lib/AuthContext"
+
+import { loadDailyQuiz } from "../engine/loadDailyQuiz"
 
 export function useDailyQuiz() {
 
-  const auth = useAuth()
-  const user = auth?.user
+  const { user } = useAuth()
 
   const [questions, setQuestions] = useState([])
-  const [answers, setAnswers] = useState({})
-  const [score, setScore] = useState(null)
-  const [alreadyPlayed, setAlreadyPlayed] = useState(false)
-  const [leaderboard, setLeaderboard] = useState([])
 
-  const today = new Date().toISOString().slice(0, 10)
+  const [answers, setAnswers] = useState({})
+
+  const [score, setScore] = useState(null)
+
+  const [alreadyAttempted, setAlreadyAttempted] =
+    useState(false)
 
   useEffect(() => {
-    loadQuiz()
-    checkAttempt()
-    loadLeaderboard()
-  }, [])
 
-  async function loadQuiz() {
-    const q = await loadDailyQuiz('class11')
-    setQuestions(q)
-  }
+    async function loadQuiz() {
 
-  async function checkAttempt() {
+      const q =
+        await loadDailyQuiz("class11")
 
-    if (!user) return
-
-    const q = query(
-      collection(db, 'quiz_attempts'),
-      where('userId', '==', user.id),
-      where('date', '==', today)
-    )
-
-    const snap = await getDocs(q)
-
-    if (!snap.empty) {
-      setAlreadyPlayed(true)
-      setScore(snap.docs[0].data().score)
+      setQuestions(q)
     }
-  }
 
-  async function loadLeaderboard() {
+    loadQuiz()
 
-    const q = query(
-      collection(db, 'quiz_attempts'),
-      orderBy('score', 'desc'),
-      limit(10)
-    )
-
-    const snap = await getDocs(q)
-
-    setLeaderboard(
-      snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-    )
-  }
-
-  function selectAnswer(index, value) {
-
-    setAnswers(prev => ({
-      ...prev,
-      [index]: value
-    }))
-  }
+  }, [])
 
   async function submitQuiz() {
 
-    if (!user) return
+    if (!user?.id) return
 
     let total = 0
 
-    questions.forEach((q, index) => {
+    questions.forEach((q, i) => {
 
-      if (answers[index] === q.answer) {
+      if (
+        answers[i] === q.answer
+      ) {
         total += 10
       }
-
     })
 
     setScore(total)
 
-    await addDoc(collection(db, 'quiz_attempts'), {
-      userId: user.id,
-      email: user.email,
-      score: total,
-      date: today,
-      created_at: new Date().toISOString()
-    })
+    const today =
+      new Date()
+        .toISOString()
+        .split("T")[0]
 
-    await updateDoc(
-      doc(db, 'profiles', user.id),
-      {
-        totalScore: increment(total),
-        quizzesAttempted: increment(1)
-      }
+    const attemptId =
+      user.id + "_" + today
+
+    const attemptRef = doc(
+      db,
+      "quiz_attempts",
+      attemptId
     )
 
-    setAlreadyPlayed(true)
+    const existing =
+      await getDoc(attemptRef)
 
-    loadLeaderboard()
+    if (existing.exists()) {
+
+      setAlreadyAttempted(true)
+
+      return
+    }
+
+    await setDoc(attemptRef, {
+
+      email: user.email,
+
+      score: total,
+
+      created_at:
+        new Date().toISOString()
+    })
+
+    const profileRef = doc(
+      db,
+      "profiles",
+      user.id
+    )
+
+    await updateDoc(profileRef, {
+
+      total_score:
+        increment(total),
+
+      quizzes_attempted:
+        increment(1),
+
+      daily_streak:
+        increment(1)
+    })
+
+    window.location.reload()
   }
 
   return {
+
     questions,
+
     answers,
+
+    setAnswers,
+
+    submitQuiz,
+
     score,
-    leaderboard,
-    alreadyPlayed,
-    selectAnswer,
-    submitQuiz
+
+    alreadyAttempted
   }
 }

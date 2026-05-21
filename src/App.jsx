@@ -1,36 +1,43 @@
 import {
   HashRouter,
   Routes,
-  Route
-} from 'react-router-dom'
+  Route,
+  Navigate
+} from "react-router-dom"
 
-import Dashboard
-from './pages/Dashboard'
-
-import QuizPage
-from './pages/QuizPage'
+import Navbar from "./components/Navbar"
+import QuizPage from "./pages/QuizPage"
+import Dashboard from "./pages/Dashboard"
 
 export default function App() {
-
   return (
-
     <HashRouter>
 
-      <Routes>
+      <div className="min-h-screen bg-black text-white">
 
-        <Route
-          path="/"
-          element={<Dashboard />}
-        />
+        <Navbar />
 
-        <Route
-          path="/quiz"
-          element={<QuizPage />}
-        />
+        <Routes>
 
-      </Routes>
+          <Route
+            path="/"
+            element={<Navigate to="/quiz" />}
+          />
+
+          <Route
+            path="/quiz"
+            element={<QuizPage />}
+          />
+
+          <Route
+            path="/dashboard"
+            element={<Dashboard />}
+          />
+
+        </Routes>
+
+      </div>
 
     </HashRouter>
-
   )
 }

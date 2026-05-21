@@ -1,36 +1,89 @@
+import { Link } from "react-router-dom"
+
 import {
-  Link
-} from 'react-router-dom'
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut
+} from "firebase/auth"
+
+import { auth } from "@/lib/firebase"
+
+import { useAuth } from "@/lib/AuthContext"
 
 export default function Navbar() {
-  return (
-    <nav className="bg-zinc-950 border-b border-zinc-800 px-8 py-5 flex justify-between items-center">
 
-      <Link
-        to="/"
-        className="text-3xl font-black text-cyan-400"
-      >
+  const authData = useAuth()
+
+  const user = authData?.user
+
+  async function login() {
+
+    const provider =
+      new GoogleAuthProvider()
+
+    await signInWithPopup(
+      auth,
+      provider
+    )
+
+    window.location.reload()
+  }
+
+  async function logout() {
+
+    await signOut(auth)
+
+    window.location.reload()
+  }
+
+  return (
+
+    <div className="bg-black text-white p-4 flex gap-6 items-center border-b border-zinc-800">
+
+      <div className="text-2xl font-bold">
         PHX
+      </div>
+
+      <Link to="/dashboard">
+        Dashboard
       </Link>
 
-      <div className="flex gap-6 text-lg">
+      <Link to="/quiz">
+        Quiz
+      </Link>
 
-        <Link
-          to="/"
-          className="hover:text-cyan-400"
-        >
-          Quiz
-        </Link>
+      <div className="ml-auto">
 
-        <Link
-          to="/dashboard"
-          className="hover:text-cyan-400"
-        >
-          Dashboard
-        </Link>
+        {user ? (
+
+          <div className="flex gap-4 items-center">
+
+            <span className="text-sm">
+              {user.email}
+            </span>
+
+            <button
+              onClick={logout}
+              className="bg-red-600 px-3 py-1 rounded"
+            >
+              Logout
+            </button>
+
+          </div>
+
+        ) : (
+
+          <button
+            onClick={login}
+            className="bg-blue-600 px-4 py-1 rounded"
+          >
+            Login
+          </button>
+
+        )}
 
       </div>
 
-    </nav>
+    </div>
   )
 }

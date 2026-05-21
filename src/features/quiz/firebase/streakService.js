@@ -1,57 +1,35 @@
 import {
   doc,
   getDoc,
-  updateDoc,
-  increment
+  updateDoc
 } from 'firebase/firestore'
 
 import { db } from '@/lib/firebase'
 
-function today() {
-  return new Date()
-    .toISOString()
-    .slice(0, 10)
-}
+export async function updateStreak(userId) {
 
-function yesterday() {
-  return new Date(
-    Date.now() - 86400000
-  )
-    .toISOString()
-    .slice(0, 10)
-}
+  const ref = doc(db, 'profiles', userId)
 
-export async function updateUserStreak(uid) {
-  try {
-    const ref = doc(db, 'profiles', uid)
+  const snap = await getDoc(ref)
 
-    const snap = await getDoc(ref)
+  if (!snap.exists()) return
 
-    if (!snap.exists()) return
+  const data = snap.data()
 
-    const user = snap.data()
+  const streak = data.streak || 0
+  const lastQuizDate = data.lastQuizDate || null
 
-    let streak = 1
+  const today = new Date()
+  const todayString = today.toISOString().slice(0, 10)
 
-    if (
-      user.lastQuizDate === yesterday()
-    ) {
-      streak = (user.streak || 0) + 1
-    }
-
-    if (
-      user.lastQuizDate === today()
-    ) {
-      return
-    }
-
-    await updateDoc(ref, {
-      streak,
-      lastQuizDate: today(),
-      quizzesAttempted: increment(1)
-    })
-
-  } catch (err) {
-    console.error('STREAK ERROR:', err)
+  if (lastQuizDate === todayString) {
+    return
   }
+
+  let nextStreak = streak + 1
+
+  await updateDoc(ref, {
+    streak: nextStreak,
+    lastQuizDate: todayString
+  })
 }

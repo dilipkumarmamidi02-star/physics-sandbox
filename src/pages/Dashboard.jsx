@@ -1,58 +1,106 @@
-import { useAuth } from '@/lib/AuthContext'
+import { useEffect, useState } from "react"
+
+import { useAuth } from "@/lib/AuthContext"
+
+import {
+  doc,
+  getDoc
+} from "firebase/firestore"
+
+import { db } from "@/lib/firebase"
 
 export default function Dashboard() {
 
   const { user } = useAuth()
 
+  const [stats, setStats] = useState({
+    daily_streak: 0,
+    total_score: 0,
+    quizzes_attempted: 0
+  })
+
+  useEffect(() => {
+
+    async function load() {
+
+      if (!user?.id) return
+
+      const ref = doc(
+        db,
+        "profiles",
+        user.id
+      )
+
+      const snap = await getDoc(ref)
+
+      if (!snap.exists()) return
+
+      const data = snap.data()
+
+      setStats({
+        daily_streak:
+          data.daily_streak || 0,
+
+        total_score:
+          data.total_score || 0,
+
+        quizzes_attempted:
+          data.quizzes_attempted || 0
+      })
+    }
+
+    load()
+
+  }, [user])
+
   return (
 
-    <div className="min-h-screen bg-slate-950 text-white p-6">
+    <div className="p-6 text-white">
 
-      <h1 className="text-4xl font-bold mb-8">
+      <h1 className="text-3xl mb-6">
         Dashboard
       </h1>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="space-y-4">
 
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-lg">
+        <div className="bg-zinc-800 p-5 rounded">
 
-          <h2 className="text-xl font-semibold text-slate-300">
+          <div className="text-lg">
             Daily Streak
-          </h2>
+          </div>
 
-          <p className="text-5xl mt-4 font-bold">
-            🔥 {user?.streak || 0}
-          </p>
+          <div className="text-3xl">
+            🔥 {stats.daily_streak}
+          </div>
 
         </div>
 
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-lg">
+        <div className="bg-zinc-800 p-5 rounded">
 
-          <h2 className="text-xl font-semibold text-slate-300">
+          <div className="text-lg">
             Total Score
-          </h2>
+          </div>
 
-          <p className="text-5xl mt-4 font-bold text-green-400">
-            {user?.totalScore || 0}
-          </p>
+          <div className="text-3xl">
+            {stats.total_score}
+          </div>
 
         </div>
 
-        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-lg">
+        <div className="bg-zinc-800 p-5 rounded">
 
-          <h2 className="text-xl font-semibold text-slate-300">
+          <div className="text-lg">
             Quizzes Attempted
-          </h2>
+          </div>
 
-          <p className="text-5xl mt-4 font-bold text-blue-400">
-            {user?.quizzesAttempted || 0}
-          </p>
+          <div className="text-3xl">
+            {stats.quizzes_attempted}
+          </div>
 
         </div>
 
       </div>
 
     </div>
-
   )
 }
