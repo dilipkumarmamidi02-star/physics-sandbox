@@ -1,50 +1,84 @@
 import { useEffect, useState } from 'react'
-import { addDoc, collection, getDocs } from 'firebase/firestore'
+
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  doc,
+  updateDoc,
+  increment
+} from 'firebase/firestore'
+
 import { db } from '@/lib/firebase'
 import { useAuth } from '@/lib/AuthContext'
 import { loadDailyQuiz } from '../engine/loadDailyQuiz'
 
 export function useDailyQuiz() {
-  const { user } = useAuth()
+
+  const auth = useAuth()
+  const user = auth?.user
 
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState({})
   const [score, setScore] = useState(null)
-  const [alreadyAttempted, setAlreadyAttempted] = useState(false)
+  const [alreadyPlayed, setAlreadyPlayed] = useState(false)
   const [leaderboard, setLeaderboard] = useState([])
 
+  const today = new Date().toISOString().slice(0, 10)
+
   useEffect(() => {
-    async function init() {
-      if (!user) return
+    loadQuiz()
+    checkAttempt()
+    loadLeaderboard()
+  }, [])
 
-      const todayKey =
-        'quiz_attempted_' + new Date().toDateString()
+  async function loadQuiz() {
+    const q = await loadDailyQuiz('class11')
+    setQuestions(q)
+  }
 
-      const already = localStorage.getItem(todayKey)
+  async function checkAttempt() {
 
-      if (already) {
-        setAlreadyAttempted(true)
-      }
+    if (!user) return
 
-      const data = await loadDailyQuiz('class11')
+    const q = query(
+      collection(db, 'quiz_attempts'),
+      where('userId', '==', user.id),
+      where('date', '==', today)
+    )
 
-      setQuestions(data)
+    const snap = await getDocs(q)
 
-      const snap = await getDocs(
-        collection(db, 'quiz_attempts')
-      )
-
-      const board = snap.docs
-        .map(doc => doc.data())
-        .sort((a, b) => b.score - a.score)
-
-      setLeaderboard(board)
+    if (!snap.empty) {
+      setAlreadyPlayed(true)
+      setScore(snap.docs[0].data().score)
     }
+  }
 
-    init()
-  }, [user])
+  async function loadLeaderboard() {
+
+    const q = query(
+      collection(db, 'quiz_attempts'),
+      orderBy('score', 'desc'),
+      limit(10)
+    )
+
+    const snap = await getDocs(q)
+
+    setLeaderboard(
+      snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+    )
+  }
 
   function selectAnswer(index, value) {
+
     setAnswers(prev => ({
       ...prev,
       [index]: value
@@ -52,44 +86,48 @@ export function useDailyQuiz() {
   }
 
   async function submitQuiz() {
-    if (!user) return
 
-    if (alreadyAttempted) return
+    if (!user) return
 
     let total = 0
 
-    questions.forEach((q, i) => {
-      if (answers[i] === q.answer) {
+    questions.forEach((q, index) => {
+
+      if (answers[index] === q.answer) {
         total += 10
       }
+
     })
 
     setScore(total)
 
     await addDoc(collection(db, 'quiz_attempts'), {
-      uid: user.id,
-      name: user.name || user.email,
+      userId: user.id,
       email: user.email,
       score: total,
-      class: user.role || 'student',
-      created_at: new Date().toISOString(),
-      day: new Date().toDateString()
+      date: today,
+      created_at: new Date().toISOString()
     })
 
-    localStorage.setItem(
-      'quiz_attempted_' + new Date().toDateString(),
-      'yes'
+    await updateDoc(
+      doc(db, 'profiles', user.id),
+      {
+        totalScore: increment(total),
+        quizzesAttempted: increment(1)
+      }
     )
 
-    setAlreadyAttempted(true)
+    setAlreadyPlayed(true)
+
+    loadLeaderboard()
   }
 
   return {
     questions,
     answers,
     score,
-    alreadyAttempted,
     leaderboard,
+    alreadyPlayed,
     selectAnswer,
     submitQuiz
   }
