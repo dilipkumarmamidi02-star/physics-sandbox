@@ -328,7 +328,7 @@ export default function Navbar() {
       {/* Spacer */}
       <div className="h-16 lg:h-20" />
 
-      <style jsx global>{`
+      <style>{`
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
