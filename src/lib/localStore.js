@@ -97,6 +97,7 @@ export const entities = {
 export const integrations = {
   Core: {
     SendEmail: (params) => {
+      console.log('[Email stub] Would send email:', params);
       return Promise.resolve({ success: true });
     },
   },
